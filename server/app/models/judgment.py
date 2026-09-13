@@ -7,7 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 
-# 사건당 최대 2개(revision 0/1)뿐이라 배열 연산자는 쓰지 않는다.
+# 판례 verdict id 목록(plan.md §7: 기소당 3건·사건 전체 10건 상한)으로, 사후 추적을 위해
+# 통째로 읽고 쓸 뿐 배열 연산자(포함/중첩 등)로 조회하지 않는다.
 # Postgres에서는 네이티브 int[], SQLite 등에서는 JSON으로 저장한다.
 _PrecedentIdsType = ARRAY(Integer).with_variant(JSON, "sqlite")
 
