@@ -15,3 +15,10 @@ def origin_label(case: Case) -> str:
         # GitHub 링크 제출은 다음 단계 기능이라 현재는 이 분기에 도달하는 case가 없다.
         return f"{case.repo_url}@{case.commit_sha} · {case.file_path}"
     return "붙여넣기로 제출됨"
+
+
+def origin_label_short(case: Case) -> str:
+    """CaseSummary(GET /cases 목록)용 축약 표기. "owner/repo" 또는 "직접 제출"."""
+    if case.repo_url:
+        return "/".join(case.repo_url.rstrip("/").split("/")[-2:])
+    return "직접 제출"

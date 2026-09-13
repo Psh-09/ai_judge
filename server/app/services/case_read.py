@@ -1,8 +1,10 @@
-from sqlalchemy import select
+import uuid
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Case, CaseStatus, Charge, Judgment, Plea, Sentence, Verdict
-from app.services.case_origin import origin_dict
+from app.models import Case, CaseStatus, Charge, Judgment, Plea, Sentence, Verdict, VerdictValue
+from app.services.case_origin import origin_dict, origin_label_short
 from app.services.rule_catalog import RuleCatalog
 
 
@@ -147,3 +149,112 @@ async def build_case_detail(session: AsyncSession, catalog: RuleCatalog, case: C
         "judgment": judgment_dict,
         "appeal": None,  # 항소 기능은 다음 단계
     }
+
+
+async def list_cases(session: AsyncSession, user_id: uuid.UUID, page: int, per_page: int) -> dict:
+    total = (
+        await session.execute(select(func.count()).select_from(Case).where(Case.user_id == user_id))
+    ).scalar_one()
+
+    cases = (
+        (
+            await session.execute(
+                select(Case)
+                .where(Case.user_id == user_id)
+                .order_by(Case.created_at.desc())
+                .limit(per_page)
+                .offset((page - 1) * per_page)
+            )
+        )
+        .scalars()
+        .all()
+    )
+
+    case_ids = [case.id for case in cases]
+    charges_count: dict[uuid.UUID, int] = {}
+    sustained_count: dict[uuid.UUID, int] = {}
+    sentence_total: dict[uuid.UUID, int] = {}
+    sentence_done: dict[uuid.UUID, int] = {}
+
+    if case_ids:
+        charges_count = dict(
+            (
+                await session.execute(
+                    select(Charge.case_id, func.count())
+                    .where(Charge.case_id.in_(case_ids))
+                    .group_by(Charge.case_id)
+                )
+            ).all()
+        )
+        sustained_count = dict(
+            (
+                await session.execute(
+                    select(Charge.case_id, func.count())
+                    .select_from(Verdict)
+                    .join(Charge, Verdict.charge_id == Charge.id)
+                    .where(Charge.case_id.in_(case_ids), Verdict.verdict == VerdictValue.SUSTAINED)
+                    .group_by(Charge.case_id)
+                )
+            ).all()
+        )
+        sentence_total = dict(
+            (
+                await session.execute(
+                    select(Charge.case_id, func.count())
+                    .select_from(Sentence)
+                    .join(Charge, Sentence.charge_id == Charge.id)
+                    .where(Charge.case_id.in_(case_ids))
+                    .group_by(Charge.case_id)
+                )
+            ).all()
+        )
+        sentence_done = dict(
+            (
+                await session.execute(
+                    select(Charge.case_id, func.count())
+                    .select_from(Sentence)
+                    .join(Charge, Sentence.charge_id == Charge.id)
+                    .where(Charge.case_id.in_(case_ids), Sentence.completed_at.is_not(None))
+                    .group_by(Charge.case_id)
+                )
+            ).all()
+        )
+
+    items = [
+        {
+            "case_id": case.id,
+            "language": case.language,
+            "status": case.status,
+            "origin_label": origin_label_short(case),
+            "charges_count": charges_count.get(case.id, 0),
+            "sustained_count": sustained_count.get(case.id, 0),
+            "sentence_progress": {
+                "done": sentence_done.get(case.id, 0),
+                "total": sentence_total.get(case.id, 0),
+            },
+            "created_at": case.created_at,
+        }
+        for case in cases
+    ]
+    return {"items": items, "page": page, "per_page": per_page, "total": total}
+
+
+async def rule_frequency(
+    session: AsyncSession, catalog: RuleCatalog, user_id: uuid.UUID, limit: int = 5
+) -> list[dict]:
+    rows = (
+        await session.execute(
+            select(Charge.rule_id, func.count())
+            .select_from(Charge)
+            .join(Case, Charge.case_id == Case.id)
+            .where(Case.user_id == user_id)
+            .group_by(Charge.rule_id)
+            .order_by(func.count().desc())
+            .limit(limit)
+        )
+    ).all()
+    items = []
+    for rule_id, count in rows:
+        rule = catalog.get(rule_id)
+        items.append({"rule_id": rule_id, "rule_title": rule.title if rule is not None else rule_id, "count": count})
+    return items

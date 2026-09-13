@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
@@ -8,8 +8,15 @@ from app.db import get_session
 from app.dependencies import get_current_user_id
 from app.errors import ApiError
 from app.models import Case
-from app.schemas.case import CaseDetail, CaseProgress, CaseSubmissionResult, CreateCaseRequest
-from app.services.case_read import build_case_detail, case_progress_dict
+from app.schemas.case import (
+    CaseDetail,
+    CaseListResponse,
+    CaseProgress,
+    CaseSubmissionResult,
+    CreateCaseRequest,
+    RuleFrequencyResponse,
+)
+from app.services.case_read import build_case_detail, case_progress_dict, list_cases, rule_frequency
 from app.services.case_submission import submit_case
 
 router = APIRouter(tags=["cases"])
@@ -36,6 +43,29 @@ async def create_case(
     return JSONResponse(
         status_code=status_code, content=payload.model_dump(mode="json", exclude_none=True)
     )
+
+
+@router.get("/cases", operation_id="listCases", response_model=CaseListResponse)
+async def get_cases(
+    page: int = Query(default=1, ge=1),
+    per_page: int = Query(default=20, ge=1, le=100),
+    session: AsyncSession = Depends(get_session),
+    user_id: uuid.UUID = Depends(get_current_user_id),
+):
+    return await list_cases(session, user_id, page, per_page)
+
+
+# /cases/{case_id}와의 경로 충돌을 피하려면 정적 경로(rule-frequency)를
+# 반드시 동적 경로({case_id}) 라우트보다 먼저 등록해야 한다.
+@router.get("/cases/rule-frequency", operation_id="getRuleFrequency", response_model=RuleFrequencyResponse)
+async def get_rule_frequency(
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    user_id: uuid.UUID = Depends(get_current_user_id),
+):
+    catalog = request.app.state.rule_catalog
+    items = await rule_frequency(session, catalog, user_id)
+    return {"items": items}
 
 
 @router.get("/cases/{case_id}", operation_id="getCase", response_model=CaseDetail)

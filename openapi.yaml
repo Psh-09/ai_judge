@@ -396,6 +396,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/CaseListResponse"
 
+  /cases/rule-frequency:
+    get:
+      tags: [cases]
+      summary: 반복 조항 랭킹 (전과 기록)
+      operationId: getRuleFrequency
+      description: 요청자가 소유한 사건에서 자주 걸린 rule_id 상위 5개와 횟수를 반환한다.
+      responses:
+        "200":
+          description: 반복 조항 랭킹
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RuleFrequencyResponse"
+              example:
+                items:
+                  - rule_id: SEC-003
+                    rule_title: SQL 문자열 결합
+                    count: 4
+                  - rule_id: STRUCT-001
+                    rule_title: 함수 길이 과다
+                    count: 3
+
   /cases/{case_id}:
     parameters:
       - $ref: "#/components/parameters/CaseId"
@@ -1072,6 +1094,20 @@ components:
         page: { type: integer }
         per_page: { type: integer }
         total: { type: integer }
+
+    RuleFrequencyItem:
+      type: object
+      properties:
+        rule_id: { type: string, example: SEC-003 }
+        rule_title: { type: string, example: SQL 문자열 결합 }
+        count: { type: integer }
+
+    RuleFrequencyResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/RuleFrequencyItem" }
 
     CaseProgress:
       type: object
