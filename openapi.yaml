@@ -1,0 +1,1012 @@
+openapi: 3.0.3
+info:
+  title: Code Court API
+  description: >
+    대립형 코드 리뷰 서비스(검사→변호인→판사) API.
+    상세 설계 근거는 docs/plans/plan.md, 화면 설계는 docs/design.md를 참고한다.
+    이 문서가 request/response 스키마의 단일 출처(single source of truth)이며,
+    plan.md는 이 문서를 참조만 하고 스키마를 중복 정의하지 않는다.
+  version: "1.0.0"
+
+servers:
+  - url: /api/v1
+
+security:
+  - cookieAuth: []
+
+tags:
+  - name: auth
+    description: 회원가입/로그인/토큰 재발급
+  - name: rules
+    description: 법전 열람
+  - name: cases
+    description: 사건 제출/조회/항소
+  - name: sentences
+    description: 형량 체크리스트
+
+paths:
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: 회원가입
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: 가입 완료
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSummary"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          description: 이메일 중복
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: EMAIL_ALREADY_REGISTERED
+                  message: 이미 가입된 이메일입니다.
+                  details: {}
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: 로그인 (httpOnly 쿠키 발급)
+      description: >
+        인증 성공 시 access_token/refresh_token을 httpOnly + Secure + SameSite=Lax
+        쿠키로 내려준다. 토큰은 응답 본문에 포함하지 않는다(§인증 방식 참고).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: 로그인 성공, Set-Cookie로 세션 발급
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: >
+                access_token=...; HttpOnly; Secure; SameSite=Lax,
+                refresh_token=...; HttpOnly; Secure; SameSite=Lax (두 개의
+                Set-Cookie 헤더로 각각 전달됨)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSummary"
+        "401":
+          description: 이메일/비밀번호 불일치
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: INVALID_CREDENTIALS
+                  message: 이메일 또는 비밀번호가 올바르지 않습니다.
+                  details: {}
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      summary: 액세스 토큰 재발급
+      description: 요청의 refresh_token 쿠키를 읽어 새 access_token 쿠키를 내려준다. 별도 요청 본문이 없다.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: 재발급 성공, Set-Cookie로 새 access_token 전달
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /rules:
+    get:
+      tags: [rules]
+      summary: 활성 법전 조항 목록
+      description: active=true인 조항만 반환한다.
+      responses:
+        "200":
+          description: 조항 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Rule"
+              example:
+                - rule_id: SEC-003
+                  category: SECURITY
+                  title: SQL 문자열 결합
+                  description: >-
+                    사용자 입력이나 변수를 문자열 연결, 포맷 문자열, 템플릿 리터럴로
+                    이어 붙여 SQL 쿼리를 만드는 경우. 파라미터 바인딩을 쓰거나,
+                    결합되는 값이 코드 내 상수뿐이면 위반이 아니다.
+                  default_severity: HIGH
+                  typical_effort: SMALL
+                  languages: [python, javascript, typescript, java]
+                  active: true
+                - rule_id: STRUCT-001
+                  category: STRUCTURE
+                  title: 함수 길이 과다
+                  description: 단일 함수의 본문이 40줄을 넘는 경우.
+                  default_severity: MEDIUM
+                  typical_effort: LARGE
+                  languages: []
+                  active: true
+
+  /cases:
+    post:
+      tags: [cases]
+      summary: 사건 제출 (붙여넣기 또는 GitHub 링크)
+      description: >
+        `code`+`language`(붙여넣기) 또는 `repo_url`(GitHub 링크) 중 정확히 하나를
+        받는다. 둘 다 없거나 둘 다 있으면 400 VALIDATION_ERROR.
+        캐시/진행중 사건 존재 여부에 따라 200(재사용) 또는 202(신규/재판)로 갈린다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCaseRequest"
+            examples:
+              paste:
+                summary: 붙여넣기 제출
+                value:
+                  code: "query = \"SELECT * FROM users WHERE id = '\" + uid + \"'\"\n"
+                  language: python
+                  force_retrial: false
+              githubLink:
+                summary: GitHub 링크 제출
+                value:
+                  repo_url: https://github.com/octocat/sample-api/blob/a1b2c3d/src/handlers/user.py
+                  force_retrial: false
+      responses:
+        "200":
+          description: 캐시 히트(완료된 사건 재사용) 또는 진행 중 사건 재사용
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseSubmissionResult"
+              examples:
+                cachedSentenced:
+                  summary: 이미 판결된 동일 코드
+                  value:
+                    case_id: 8f14e45f-ceea-4c6a-9f3b-000000000001
+                    cached: true
+                    origin: "octocat/sample-api@a1b2c3d, src/handlers/user.py"
+                inProgress:
+                  summary: 동일 코드가 이미 진행 중
+                  value:
+                    case_id: 8f14e45f-ceea-4c6a-9f3b-000000000002
+                    cached: false
+                    in_progress: true
+        "202":
+          description: 신규 사건 생성(또는 force_retrial로 재판 강행)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseSubmissionResult"
+              examples:
+                newCase:
+                  summary: 신규 사건
+                  value:
+                    case_id: 8f14e45f-ceea-4c6a-9f3b-000000000003
+                    cached: false
+                retrial:
+                  summary: 캐시 히트 후 force_retrial로 재판 강행
+                  value:
+                    case_id: 8f14e45f-ceea-4c6a-9f3b-000000000004
+                    cached: false
+                    previous_case_id: 8f14e45f-ceea-4c6a-9f3b-000000000001
+        "400":
+          description: 요청 검증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                emptyCode:
+                  value:
+                    {
+                      error:
+                        {
+                          code: EMPTY_CODE,
+                          message: 코드가 비어 있습니다.,
+                          details: {},
+                        },
+                    }
+                tooLong:
+                  value:
+                    {
+                      error:
+                        {
+                          code: CODE_TOO_LONG,
+                          message: 코드가 500줄 또는 20000자를 초과했습니다.,
+                          details: { max_lines: 500, max_chars: 20000 },
+                        },
+                    }
+                invalidLanguage:
+                  value:
+                    {
+                      error:
+                        {
+                          code: INVALID_LANGUAGE,
+                          message: language 필드가 없거나 형식이 올바르지 않습니다.,
+                          details: {},
+                        },
+                    }
+                invalidRepoUrl:
+                  value:
+                    {
+                      error:
+                        {
+                          code: INVALID_REPO_URL,
+                          message: GitHub 파일(blob) 링크가 아닙니다.,
+                          details: {},
+                        },
+                    }
+                repoFileUnavailable:
+                  value:
+                    {
+                      error:
+                        {
+                          code: REPO_FILE_UNAVAILABLE,
+                          message: 파일을 불러올 수 없습니다. 공개 저장소인지 확인해 주세요.,
+                          details: {},
+                        },
+                    }
+        "409":
+          description: 진행 중인 사건이 있는 상태에서 force_retrial 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: RETRIAL_BLOCKED
+                  message: 진행 중인 사건이 있어 재판을 새로 시작할 수 없습니다.
+                  details: {}
+        "429":
+          description: 일일 제출 한도 또는 GitHub fetch 한도 초과
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                rateLimited:
+                  value:
+                    {
+                      error:
+                        {
+                          code: RATE_LIMITED,
+                          message: 24시간 내 20건을 모두 사용했습니다.,
+                          details:
+                            {
+                              limit: 20,
+                              window: "24h",
+                              retry_after_seconds: 41400,
+                            },
+                        },
+                    }
+                fetchRateLimited:
+                  value:
+                    {
+                      error:
+                        {
+                          code: FETCH_RATE_LIMITED,
+                          message: 링크 불러오기 횟수를 초과했습니다.,
+                          details: { limit: 60, window: "24h" },
+                        },
+                    }
+        "503":
+          description: GitHub API 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: GITHUB_UNAVAILABLE
+                  message: GitHub에서 파일을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.
+                  details: {}
+
+    get:
+      tags: [cases]
+      summary: 본인 사건 목록 (전과 기록)
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: 사건 목록
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseListResponse"
+
+  /cases/{case_id}:
+    parameters:
+      - $ref: "#/components/parameters/CaseId"
+    get:
+      tags: [cases]
+      summary: 사건 상세(기소장+변론+판결+항소 정보 전체)
+      responses:
+        "200":
+          description: 사건 상세
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseDetail"
+              examples:
+                sentencedCase:
+                  $ref: "#/components/examples/CaseDetailExample"
+        "404":
+          $ref: "#/components/responses/CaseNotFound"
+
+  /cases/{case_id}/progress:
+    parameters:
+      - $ref: "#/components/parameters/CaseId"
+    get:
+      tags: [cases]
+      summary: 진행 상태 폴링용 경량 응답
+      responses:
+        "200":
+          description: 현재 상태
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseProgress"
+              example:
+                status: JUDGING
+                revision: 0
+                appeal_used: false
+        "404":
+          $ref: "#/components/responses/CaseNotFound"
+
+  /cases/{case_id}/appeal:
+    parameters:
+      - $ref: "#/components/parameters/CaseId"
+    post:
+      tags: [cases]
+      summary: 항소 접수 (1회 한정)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppealRequest"
+            example:
+              rebuttal: >-
+                이 함수는 단일 진입점 스크립트에서만 호출되므로 전역 변수 사용이
+                의도된 설계입니다.
+      responses:
+        "202":
+          description: 재심 접수됨(QUEUED_REJUDGMENT로 전이)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseProgress"
+              example:
+                status: QUEUED_REJUDGMENT
+                revision: 0
+                appeal_used: true
+        "400":
+          description: rebuttal 20자 미만
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: REBUTTAL_TOO_SHORT
+                  message: 항소 사유는 20자 이상 입력해야 합니다.
+                  details: { min_length: 20 }
+        "404":
+          $ref: "#/components/responses/CaseNotFound"
+        "409":
+          description: 이미 판결 확정 상태가 아니거나 항소를 이미 사용함
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: APPEAL_ALREADY_USED
+                  message: 이미 항소를 사용한 사건입니다.
+                  details: {}
+
+  /sentences/{sentence_id}:
+    parameters:
+      - name: sentence_id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [sentences]
+      summary: 형량 체크리스트 항목 완료 토글
+      description: 사건 status와 무관하게 언제든 토글 가능하다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SentenceToggleRequest"
+            example:
+              completed: true
+      responses:
+        "200":
+          description: 토글 결과 + 사건 전체 이행률
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SentenceToggleResponse"
+              example:
+                sentence_id: 3fbb9e0a-3b3a-4a9e-8a1a-000000000001
+                completed_at: "2026-09-08T10:12:00Z"
+                progress: { done: 1, total: 3 }
+        "404":
+          description: 존재하지 않거나 소유자가 아님
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: SENTENCE_NOT_FOUND
+                  message: 형량 항목을 찾을 수 없습니다.
+                  details: {}
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: >
+        httpOnly + Secure + SameSite=Lax 쿠키로 전달되는 JWT access_token.
+        localStorage 등 JS로 접근 가능한 저장소는 쓰지 않는다(XSS 파급 범위 축소).
+        상태 변경 요청(POST/PATCH)에는 CSRF 대응으로 커스텀 헤더 검증 또는
+        Double Submit Cookie 패턴 중 하나가 함께 적용된다.
+
+  parameters:
+    CaseId:
+      name: case_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    ValidationError:
+      description: 요청 필드 검증 실패
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: 인증 토큰 없음/만료/위조
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              { code: UNAUTHORIZED, message: 로그인이 필요합니다., details: {} }
+    CaseNotFound:
+      description: 존재하지 않거나 요청자가 소유자가 아닌 사건(403 대신 404 — 존재 여부 자체를 노출하지 않음)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              {
+                code: CASE_NOT_FOUND,
+                message: 사건을 찾을 수 없습니다.,
+                details: {},
+              }
+
+  examples:
+    CaseDetailExample:
+      value:
+        case_id: 8f14e45f-ceea-4c6a-9f3b-000000000001
+        language: python
+        status: SENTENCED
+        revision: 0
+        appeal_used: false
+        charges_truncated: false
+        total_lines: 187
+        origin:
+          type: github
+          repo_url: https://github.com/octocat/sample-api
+          commit_sha: a1b2c3d
+          file_path: src/handlers/user.py
+        created_at: "2026-09-08T10:00:00Z"
+        updated_at: "2026-09-08T10:02:30Z"
+        charges:
+          - charge_index: 0
+            rule_id: SEC-003
+            rule_title: SQL 문자열 결합
+            evidence_start: 42
+            evidence_end: 42
+            charged_severity: HIGH
+            severity_adjusted: false
+            severity_reason: null
+            description: 사용자 입력이 문자열 결합으로 SQL 쿼리에 직접 삽입된다.
+          - charge_index: 1
+            rule_id: STRUCT-001
+            rule_title: 함수 길이 과다
+            evidence_start: 88
+            evidence_end: 140
+            charged_severity: MEDIUM
+            severity_adjusted: false
+            severity_reason: null
+            description: parse_and_save 함수가 52줄에 걸쳐 파싱·검증·저장을 함께 처리한다.
+          - charge_index: 2
+            rule_id: ERR-002
+            rule_title: 광범위 예외 처리
+            evidence_start: 155
+            evidence_end: 158
+            charged_severity: HIGH
+            severity_adjusted: false
+            severity_reason: null
+            description: 최상위 예외 타입을 통째로 잡아 예상하지 못한 오류까지 삼킨다.
+          - charge_index: 3
+            rule_id: NAMING-002
+            rule_title: 축약 변수명
+            evidence_start: 17
+            evidence_end: 17
+            charged_severity: LOW
+            severity_adjusted: false
+            severity_reason: null
+            description: 한두 글자로 축약되어 역할을 알 수 없는 변수명이다.
+          - charge_index: 4
+            rule_id: STYLE-001
+            rule_title: 매직 넘버
+            evidence_start: 63
+            evidence_end: 63
+            charged_severity: LOW
+            severity_adjusted: false
+            severity_reason: null
+            description: 의미를 알 수 없는 숫자 리터럴이 로직에 직접 등장한다.
+        pleas:
+          - charge_index: 0
+            plea: DENY
+            argument: 이 호출은 내부 관리자 스크립트에서만 실행되므로 외부 공격 표면이 아니다.
+          - charge_index: 1
+            plea: DENY
+            argument: 레거시 호환을 위해 하나의 트랜잭션으로 묶어야 했다.
+          - charge_index: 2
+            plea: DENY
+            argument: 해당 구간에 실패를 기록하는 로깅이 포함되어 있다.
+          - charge_index: 3
+            plea: DENY
+            argument: 이 변수는 선언 후 3줄 내에서만 사용되는 지역 변수다.
+          - charge_index: 4
+            plea: DENY
+            argument: 상수 바로 위 주석에 의미가 설명되어 있다.
+        judgment:
+          revision: 0
+          opinion: >-
+            전반적으로 동작하는 코드이나, 입력 검증과 함수 단위 책임 분리가 미흡하다.
+            보안 관련 지적 1건은 즉시 수정이 필요하다.
+          rebuttal_accepted: null
+          precedent_verdict_ids: [1042, 987, 1103]
+          verdicts:
+            - charge_index: 0
+              verdict: SUSTAINED
+              final_severity: HIGH
+              reasoning: >-
+                사용자 입력이 검증 없이 쿼리에 결합된다. 변론의 '내부 스크립트'
+                주장은 입력 경로가 외부에 열려 있어 성립하지 않는다.
+            - charge_index: 1
+              verdict: SUSTAINED
+              final_severity: MEDIUM
+              reasoning: 52줄 단일 함수가 파싱·검증·저장을 함께 처리한다.
+            - charge_index: 2
+              verdict: REDUCED
+              final_severity: MEDIUM
+              reasoning: >-
+                except 범위가 넓은 것은 사실이나, 로깅이 포함되어 실패가
+                은폐되지는 않는다.
+            - charge_index: 3
+              verdict: DISMISSED
+              final_severity: null
+              reasoning: 변론 인정. 스코프가 3줄이라 조항 적용이 과하다.
+            - charge_index: 4
+              verdict: DISMISSED
+              final_severity: null
+              reasoning: 상수의 의미가 인접 주석으로 설명되어 있어 가독성 저해가 없다.
+          sentences:
+            - sentence_id: 3fbb9e0a-3b3a-4a9e-8a1a-000000000001
+              charge_index: 0
+              task: 42번 줄 쿼리를 파라미터 바인딩으로 교체
+              target_start: 42
+              target_end: 42
+              effort: SMALL
+              effort_adjusted: false
+              effort_reason: null
+              effort_clamped: false
+              advisory: false
+              rationale: 파라미터 바인딩으로 교체하면 SQL 인젝션 경로가 닫힌다.
+              completed_at: null
+            - sentence_id: 3fbb9e0a-3b3a-4a9e-8a1a-000000000002
+              charge_index: 1
+              task: parse_and_save()를 파싱·검증·저장 세 함수로 분리
+              target_start: 88
+              target_end: 140
+              effort: LARGE
+              effort_adjusted: false
+              effort_reason: null
+              effort_clamped: false
+              advisory: false
+              rationale: 책임을 분리하면 각 단계를 독립적으로 테스트할 수 있다.
+              completed_at: null
+            - sentence_id: 3fbb9e0a-3b3a-4a9e-8a1a-000000000003
+              charge_index: 2
+              task: except 절을 예상 예외 타입으로 좁힘
+              target_start: 155
+              target_end: 158
+              effort: MEDIUM
+              effort_adjusted: false
+              effort_reason: null
+              effort_clamped: false
+              advisory: false
+              rationale: 예상 가능한 예외만 잡으면 나머지 오류가 은폐되지 않는다.
+              completed_at: null
+        appeal: null
+
+  schemas:
+    Severity:
+      type: string
+      enum: [HIGH, MEDIUM, LOW]
+
+    Effort:
+      type: string
+      enum: [SMALL, MEDIUM, LARGE]
+
+    VerdictValue:
+      type: string
+      enum: [SUSTAINED, REDUCED, DISMISSED]
+
+    PleaValue:
+      type: string
+      enum: [ADMIT, DENY, NO_RESPONSE]
+
+    CaseStatus:
+      type: string
+      enum:
+        - QUEUED_PROSECUTION
+        - PROSECUTING
+        - QUEUED_DEFENSE
+        - DEFENDING
+        - QUEUED_JUDGMENT
+        - JUDGING
+        - SENTENCED
+        - DISMISSED
+        - QUEUED_REJUDGMENT
+        - REJUDGING
+        - FAILED
+
+    FailedStage:
+      type: string
+      enum: [PROSECUTION, DEFENSE, JUDGMENT]
+      nullable: true
+
+    FailureReason:
+      type: string
+      enum: [SCHEMA_INVALID, TIMEOUT, API_ERROR]
+      nullable: true
+
+    ErrorCode:
+      type: string
+      description: 표준 에러 코드. 전체 목록과 발생 조건은 docs/api.md 참고.
+      enum:
+        - VALIDATION_ERROR
+        - EMPTY_CODE
+        - CODE_TOO_LONG
+        - INVALID_LANGUAGE
+        - REBUTTAL_TOO_SHORT
+        - UNAUTHORIZED
+        - INVALID_CREDENTIALS
+        - CASE_NOT_FOUND
+        - SENTENCE_NOT_FOUND
+        - EMAIL_ALREADY_REGISTERED
+        - APPEAL_ALREADY_USED
+        - RETRIAL_BLOCKED
+        - RATE_LIMITED
+        - INVALID_REPO_URL
+        - REPO_FILE_UNAVAILABLE
+        - GITHUB_UNAVAILABLE
+        - FETCH_RATE_LIMITED
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              $ref: "#/components/schemas/ErrorCode"
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+
+    UserSummary:
+      type: object
+      properties:
+        user_id: { type: string, format: uuid }
+        email: { type: string, format: email }
+
+    Rule:
+      type: object
+      properties:
+        rule_id: { type: string, example: SEC-003 }
+        category: { type: string, example: SECURITY }
+        title: { type: string, example: SQL 문자열 결합 }
+        description: { type: string }
+        default_severity: { $ref: "#/components/schemas/Severity" }
+        typical_effort: { $ref: "#/components/schemas/Effort" }
+        languages:
+          type: array
+          items: { type: string }
+          description: 빈 배열이면 전 언어 공통.
+        active: { type: boolean }
+
+    PasteSubmission:
+      type: object
+      required: [code, language]
+      properties:
+        code: { type: string, maxLength: 20000 }
+        language: { type: string, example: python }
+        force_retrial: { type: boolean, default: false }
+
+    LinkSubmission:
+      type: object
+      required: [repo_url]
+      properties:
+        repo_url:
+          type: string
+          format: uri
+          example: https://github.com/octocat/sample-api/blob/a1b2c3d/src/handlers/user.py
+        force_retrial: { type: boolean, default: false }
+
+    CreateCaseRequest:
+      oneOf:
+        - $ref: "#/components/schemas/PasteSubmission"
+        - $ref: "#/components/schemas/LinkSubmission"
+
+    CaseSubmissionResult:
+      type: object
+      required: [case_id, cached]
+      properties:
+        case_id: { type: string, format: uuid }
+        cached: { type: boolean }
+        in_progress:
+          type: boolean
+          description: 동일 코드의 진행 중 사건을 그대로 반환한 경우에만 존재
+        origin:
+          type: string
+          description: 캐시 히트 시 원 사건의 출처. GitHub 링크면 "owner/repo@sha, path", 붙여넣기면 "붙여넣기로 제출됨"
+        previous_case_id:
+          type: string
+          format: uuid
+          description: force_retrial로 새 사건을 만들 때 이전 사건 링크
+
+    CaseOrigin:
+      type: object
+      description: 붙여넣기 제출이면 repo_url/commit_sha/file_path가 전부 null
+      properties:
+        type: { type: string, enum: [paste, github] }
+        repo_url: { type: string, format: uri, nullable: true }
+        commit_sha: { type: string, nullable: true, example: a1b2c3d }
+        file_path:
+          { type: string, nullable: true, example: src/handlers/user.py }
+
+    Charge:
+      type: object
+      properties:
+        charge_index: { type: integer, minimum: 0 }
+        rule_id: { type: string, example: SEC-003 }
+        rule_title:
+          type: string
+          description: 법전 조회 결과로 채워지는 조항명(charges 테이블에는 저장되지 않음)
+        evidence_start: { type: integer, minimum: 1 }
+        evidence_end: { type: integer, minimum: 1 }
+        charged_severity: { $ref: "#/components/schemas/Severity" }
+        severity_adjusted: { type: boolean }
+        severity_reason: { type: string, nullable: true }
+        description: { type: string }
+
+    Plea:
+      type: object
+      properties:
+        charge_index: { type: integer }
+        plea: { $ref: "#/components/schemas/PleaValue" }
+        argument: { type: string }
+
+    Verdict:
+      type: object
+      properties:
+        charge_index: { type: integer }
+        verdict: { $ref: "#/components/schemas/VerdictValue" }
+        final_severity:
+          allOf: [{ $ref: "#/components/schemas/Severity" }]
+          nullable: true
+          description: DISMISSED면 null
+        reasoning: { type: string }
+
+    Sentence:
+      type: object
+      properties:
+        sentence_id: { type: string, format: uuid }
+        charge_index: { type: integer }
+        task: { type: string, maxLength: 120 }
+        target_start: { type: integer }
+        target_end: { type: integer }
+        effort: { $ref: "#/components/schemas/Effort" }
+        effort_adjusted: { type: boolean }
+        effort_reason: { type: string, nullable: true }
+        effort_clamped: { type: boolean }
+        advisory: { type: boolean }
+        rationale: { type: string }
+        completed_at: { type: string, format: date-time, nullable: true }
+
+    Judgment:
+      type: object
+      properties:
+        revision: { type: integer, enum: [0, 1] }
+        opinion: { type: string }
+        rebuttal_accepted:
+          type: boolean
+          nullable: true
+          description: 재심 판결에서만 값이 있음
+        precedent_verdict_ids:
+          type: array
+          items: { type: integer }
+        verdicts:
+          type: array
+          items: { $ref: "#/components/schemas/Verdict" }
+        sentences:
+          type: array
+          items: { $ref: "#/components/schemas/Sentence" }
+
+    Appeal:
+      type: object
+      nullable: true
+      properties:
+        rebuttal: { type: string }
+        created_at: { type: string, format: date-time }
+
+    CaseDetail:
+      type: object
+      properties:
+        case_id: { type: string, format: uuid }
+        language: { type: string }
+        status: { $ref: "#/components/schemas/CaseStatus" }
+        revision: { type: integer, enum: [0, 1] }
+        appeal_used: { type: boolean }
+        charges_truncated: { type: boolean }
+        total_lines: { type: integer }
+        failed_stage: { $ref: "#/components/schemas/FailedStage" }
+        failure_reason: { $ref: "#/components/schemas/FailureReason" }
+        origin: { $ref: "#/components/schemas/CaseOrigin" }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        charges:
+          type: array
+          items: { $ref: "#/components/schemas/Charge" }
+        pleas:
+          type: array
+          items: { $ref: "#/components/schemas/Plea" }
+        judgment:
+          allOf: [{ $ref: "#/components/schemas/Judgment" }]
+          nullable: true
+          description: SENTENCED 전이거나 DISMISSED/FAILED면 null
+        appeal:
+          $ref: "#/components/schemas/Appeal"
+
+    CaseSummary:
+      type: object
+      description: GET /cases 목록(전과 기록)용 축약 항목
+      properties:
+        case_id: { type: string, format: uuid }
+        language: { type: string }
+        status: { $ref: "#/components/schemas/CaseStatus" }
+        origin_label:
+          type: string
+          description: '"owner/repo" 또는 "직접 제출"'
+          example: octocat/sample-api
+        charges_count: { type: integer }
+        sustained_count: { type: integer }
+        sentence_progress:
+          type: object
+          properties:
+            done: { type: integer }
+            total: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    CaseListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CaseSummary" }
+        page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+
+    CaseProgress:
+      type: object
+      properties:
+        status: { $ref: "#/components/schemas/CaseStatus" }
+        revision: { type: integer, enum: [0, 1] }
+        appeal_used: { type: boolean }
+
+    AppealRequest:
+      type: object
+      required: [rebuttal]
+      properties:
+        rebuttal: { type: string, minLength: 20 }
+
+    SentenceToggleRequest:
+      type: object
+      required: [completed]
+      properties:
+        completed: { type: boolean }
+
+    SentenceToggleResponse:
+      type: object
+      properties:
+        sentence_id: { type: string, format: uuid }
+        completed_at: { type: string, format: date-time, nullable: true }
+        progress:
+          type: object
+          properties:
+            done: { type: integer }
+            total: { type: integer }
