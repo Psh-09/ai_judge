@@ -132,6 +132,7 @@ paths:
       description: 요청의 refresh_token 쿠키를 읽어 새 access_token 쿠키를 내려준다. 별도 요청 본문이 없다.
       security:
         - refreshCookieAuth: []
+          csrfHeader: []
       responses:
         "200":
           description: 재발급 성공, Set-Cookie로 새 access_token 전달
@@ -149,6 +150,8 @@ paths:
                     example: true
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/CsrfCheckFailed"
 
   /rules:
     get:
@@ -195,6 +198,9 @@ paths:
         `code`+`language`(붙여넣기) 또는 `repo_url`(GitHub 링크) 중 정확히 하나를
         받는다. 둘 다 없거나 둘 다 있으면 400 VALIDATION_ERROR.
         캐시/진행중 사건 존재 여부에 따라 200(재사용) 또는 202(신규/재판)로 갈린다.
+      security:
+        - cookieAuth: []
+          csrfHeader: []
       requestBody:
         required: true
         content:
@@ -313,6 +319,8 @@ paths:
                           details: {},
                         },
                     }
+        "403":
+          $ref: "#/components/responses/CsrfCheckFailed"
         "409":
           description: 진행 중인 사건이 있는 상태에서 force_retrial 요청
           content:
@@ -547,6 +555,15 @@ components:
         access_token과는 별개의 쿠키이며 /auth/refresh에서만 쓰인다 —
         access_token이 만료된 상태에서 호출하는 엔드포인트이므로 access_token
         쿠키를 요구하면 안 된다.
+    csrfHeader:
+      type: apiKey
+      in: header
+      name: X-CSRF-Protection
+      description: >
+        쿠키 인증을 사용하는 상태 변경 요청(POST/PATCH/DELETE)에 필요한 CSRF 방어용
+        커스텀 헤더. 값은 "1" 고정. 단순 폼 기반 요청은 커스텀 헤더를 실어 보낼 수 없고,
+        fetch/XHR 기반 요청은 CORS preflight에서 차단되므로 별도 토큰 쿠키 없이
+        동일한 방어 효과를 얻는다(선정 근거는 plan.md 참고).
 
   parameters:
     CaseId:
@@ -584,6 +601,17 @@ components:
                 message: 사건을 찾을 수 없습니다.,
                 details: {},
               }
+    CsrfCheckFailed:
+      description: X-CSRF-Protection 헤더가 없거나 값이 올바르지 않음
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: CSRF_CHECK_FAILED
+              message: X-CSRF-Protection 헤더가 없거나 값이 올바르지 않습니다.
+              details: {}
 
   examples:
     CaseDetailExample:
@@ -798,6 +826,7 @@ components:
         - REPO_FILE_UNAVAILABLE
         - GITHUB_UNAVAILABLE
         - FETCH_RATE_LIMITED
+        - CSRF_CHECK_FAILED
 
     ErrorResponse:
       type: object
