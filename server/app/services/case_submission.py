@@ -6,13 +6,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors import ApiError
-from app.models import Case, CaseStatus, User
+from app.models import Case, CaseStatus
 from app.services.case_origin import origin_dict, origin_label
 from app.services.code import MAX_CHARS, MAX_LINES, check_length, compute_code_hash
 from app.services.code import total_lines as count_total_lines
-
-# TODO(auth): 로그인/JWT가 생기기 전까지 모든 사건을 이 고정 사용자 소유로 처리한다.
-TEMP_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 ALLOWED_LANGUAGES = {"python", "javascript", "typescript", "java", "other"}
 DAILY_CASE_LIMIT = 20
@@ -23,13 +20,6 @@ _ACTIVE_STATUSES = [
     for status in CaseStatus
     if status not in (CaseStatus.SENTENCED, CaseStatus.DISMISSED, CaseStatus.FAILED)
 ]
-
-
-async def _ensure_temp_user(session: AsyncSession) -> None:
-    existing = await session.get(User, TEMP_USER_ID)
-    if existing is None:
-        session.add(User(id=TEMP_USER_ID, email="demo@codecourt.local", password_hash="!disabled!"))
-        await session.flush()
 
 
 def _validate_submission(code: str, language: str) -> None:
@@ -66,6 +56,8 @@ async def _check_rate_limit(session: AsyncSession, user_id: uuid.UUID) -> None:
             )
         )
     ).scalar_one()
+    if oldest.tzinfo is None:  # SQLite는 timezone-aware datetime을 보존하지 않는다
+        oldest = oldest.replace(tzinfo=timezone.utc)
     retry_after = RATE_LIMIT_WINDOW - (datetime.now(timezone.utc) - oldest)
     raise ApiError(
         429,
@@ -79,11 +71,13 @@ async def _check_rate_limit(session: AsyncSession, user_id: uuid.UUID) -> None:
     )
 
 
-async def _find_cached_case(session: AsyncSession, code_hash: str, language: str) -> Case | None:
+async def _find_cached_case(
+    session: AsyncSession, user_id: uuid.UUID, code_hash: str, language: str
+) -> Case | None:
     stmt = (
         select(Case)
         .where(
-            Case.user_id == TEMP_USER_ID,
+            Case.user_id == user_id,
             Case.code_hash == code_hash,
             Case.language == language,
             Case.status.in_([CaseStatus.SENTENCED, CaseStatus.DISMISSED]),
@@ -94,9 +88,11 @@ async def _find_cached_case(session: AsyncSession, code_hash: str, language: str
     return (await session.execute(stmt)).scalar_one_or_none()
 
 
-async def _find_in_progress_case(session: AsyncSession, code_hash: str, language: str) -> Case | None:
+async def _find_in_progress_case(
+    session: AsyncSession, user_id: uuid.UUID, code_hash: str, language: str
+) -> Case | None:
     stmt = select(Case).where(
-        Case.user_id == TEMP_USER_ID,
+        Case.user_id == user_id,
         Case.code_hash == code_hash,
         Case.language == language,
         Case.status.in_(_ACTIVE_STATUSES),
@@ -104,15 +100,16 @@ async def _find_in_progress_case(session: AsyncSession, code_hash: str, language
     return (await session.execute(stmt)).scalar_one_or_none()
 
 
-async def submit_case(session: AsyncSession, *, code: str, language: str, force_retrial: bool) -> tuple[int, dict]:
+async def submit_case(
+    session: AsyncSession, *, user_id: uuid.UUID, code: str, language: str, force_retrial: bool
+) -> tuple[int, dict]:
     """POST /cases의 본 로직. (http_status, CaseSubmissionResult dict)를 반환한다."""
     _validate_submission(code, language)
-    await _ensure_temp_user(session)
 
     code_hash = compute_code_hash(code, language)
     total_lines = count_total_lines(code)
 
-    cached_case = await _find_cached_case(session, code_hash, language)
+    cached_case = await _find_cached_case(session, user_id, code_hash, language)
     if cached_case is not None and not force_retrial:
         return 200, {
             "case_id": cached_case.id,
@@ -121,10 +118,10 @@ async def submit_case(session: AsyncSession, *, code: str, language: str, force_
             "origin_label": origin_label(cached_case),
         }
 
-    await _check_rate_limit(session, TEMP_USER_ID)
+    await _check_rate_limit(session, user_id)
 
     new_case = Case(
-        user_id=TEMP_USER_ID,
+        user_id=user_id,
         code=code,
         language=language,
         code_hash=code_hash,
@@ -139,7 +136,7 @@ async def submit_case(session: AsyncSession, *, code: str, language: str, force_
         await session.rollback()
         if force_retrial:
             raise ApiError(409, "RETRIAL_BLOCKED", "진행 중인 사건이 있어 재판을 새로 시작할 수 없습니다.")
-        existing = await _find_in_progress_case(session, code_hash, language)
+        existing = await _find_in_progress_case(session, user_id, code_hash, language)
         return 200, {"case_id": existing.id, "cached": False, "in_progress": True}
 
     result = {"case_id": new_case.id, "cached": False}
