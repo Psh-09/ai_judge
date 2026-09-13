@@ -21,8 +21,8 @@ node_modules/
 dist/
 build/
 
-# Claude Code local settings
-.claude/settings.local.json
+# Claude Code local tooling (agent/skill config, local permissions)
+.claude/
 
 # OS junk
 .DS_Store
