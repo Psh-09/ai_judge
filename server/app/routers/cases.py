@@ -9,6 +9,7 @@ from app.dependencies import get_current_user_id
 from app.errors import ApiError
 from app.models import Case
 from app.schemas.case import (
+    AppealRequest,
     CaseDetail,
     CaseListResponse,
     CaseProgress,
@@ -16,6 +17,7 @@ from app.schemas.case import (
     CreateCaseRequest,
     RuleFrequencyResponse,
 )
+from app.services.appeal import submit_appeal
 from app.services.case_read import build_case_detail, case_progress_dict, list_cases, rule_frequency
 from app.services.case_submission import submit_case
 
@@ -88,3 +90,15 @@ async def get_case_progress(
 ):
     case = await _get_owned_case(session, case_id, user_id)
     return case_progress_dict(case)
+
+
+@router.post(
+    "/cases/{case_id}/appeal", operation_id="appealCase", status_code=202, response_model=CaseProgress
+)
+async def appeal_case(
+    case_id: uuid.UUID,
+    body: AppealRequest,
+    session: AsyncSession = Depends(get_session),
+    user_id: uuid.UUID = Depends(get_current_user_id),
+):
+    return await submit_appeal(session, case_id=case_id, user_id=user_id, rebuttal=body.rebuttal)

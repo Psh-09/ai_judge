@@ -469,6 +469,9 @@ paths:
       summary: 항소 접수 (1회 한정)
       operationId: appealCase
       description: SENTENCED 상태이고 appeal_used=false인 사건만 접수 가능하며, 접수 즉시 appeal_used=true로 확정된다.
+      security:
+        - cookieAuth: []
+          csrfHeader: []
       requestBody:
         required: true
         content:
@@ -501,6 +504,8 @@ paths:
                   code: REBUTTAL_TOO_SHORT
                   message: 항소 사유는 20자 이상 입력해야 합니다.
                   details: { min_length: 20 }
+        "403":
+          $ref: "#/components/responses/CsrfCheckFailed"
         "404":
           $ref: "#/components/responses/CaseNotFound"
         "409":

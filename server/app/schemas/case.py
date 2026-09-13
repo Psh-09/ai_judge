@@ -15,6 +15,12 @@ class CreateCaseRequest(BaseModel):
     force_retrial: bool = False
 
 
+class AppealRequest(BaseModel):
+    # REBUTTAL_TOO_SHORT를 우리 ErrorResponse 형태로 직접 내려주기 위해
+    # pydantic의 min_length 대신 서비스 계층에서 길이를 검사한다.
+    rebuttal: str
+
+
 class CaseOrigin(BaseModel):
     type: str
     repo_url: str | None = None

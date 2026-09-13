@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Case, CaseStatus, Charge, Judgment, Plea, Sentence, Verdict, VerdictValue
+from app.models import Appeal, Case, CaseStatus, Charge, Judgment, Plea, Sentence, Verdict, VerdictValue
 from app.services.case_origin import origin_dict, origin_label_short
 from app.services.rule_catalog import RuleCatalog
 
@@ -131,6 +131,15 @@ async def build_case_detail(session: AsyncSession, catalog: RuleCatalog, case: C
                 ),
             }
 
+    appeal_row = (
+        await session.execute(select(Appeal).where(Appeal.case_id == case.id))
+    ).scalar_one_or_none()
+    appeal_dict = (
+        {"rebuttal": appeal_row.rebuttal, "created_at": appeal_row.created_at}
+        if appeal_row is not None
+        else None
+    )
+
     return {
         "case_id": case.id,
         "language": case.language,
@@ -147,7 +156,7 @@ async def build_case_detail(session: AsyncSession, catalog: RuleCatalog, case: C
         "charges": charge_dicts,
         "pleas": plea_dicts,
         "judgment": judgment_dict,
-        "appeal": None,  # 항소 기능은 다음 단계
+        "appeal": appeal_dict,
     }
 
 
@@ -186,13 +195,21 @@ async def list_cases(session: AsyncSession, user_id: uuid.UUID, page: int, per_p
                 )
             ).all()
         )
+        # 재심(revision=1)이 생기면 같은 charge에 verdict/sentence가 두 벌 쌓이므로,
+        # 사건의 "현재" revision과 일치하는 judgment의 것만 집계해야 이중 집계를 피한다.
         sustained_count = dict(
             (
                 await session.execute(
                     select(Charge.case_id, func.count())
                     .select_from(Verdict)
+                    .join(Judgment, Verdict.judgment_id == Judgment.id)
                     .join(Charge, Verdict.charge_id == Charge.id)
-                    .where(Charge.case_id.in_(case_ids), Verdict.verdict == VerdictValue.SUSTAINED)
+                    .join(Case, Judgment.case_id == Case.id)
+                    .where(
+                        Charge.case_id.in_(case_ids),
+                        Verdict.verdict == VerdictValue.SUSTAINED,
+                        Judgment.revision == Case.revision,
+                    )
                     .group_by(Charge.case_id)
                 )
             ).all()
@@ -202,8 +219,10 @@ async def list_cases(session: AsyncSession, user_id: uuid.UUID, page: int, per_p
                 await session.execute(
                     select(Charge.case_id, func.count())
                     .select_from(Sentence)
+                    .join(Judgment, Sentence.judgment_id == Judgment.id)
                     .join(Charge, Sentence.charge_id == Charge.id)
-                    .where(Charge.case_id.in_(case_ids))
+                    .join(Case, Judgment.case_id == Case.id)
+                    .where(Charge.case_id.in_(case_ids), Judgment.revision == Case.revision)
                     .group_by(Charge.case_id)
                 )
             ).all()
@@ -213,8 +232,14 @@ async def list_cases(session: AsyncSession, user_id: uuid.UUID, page: int, per_p
                 await session.execute(
                     select(Charge.case_id, func.count())
                     .select_from(Sentence)
+                    .join(Judgment, Sentence.judgment_id == Judgment.id)
                     .join(Charge, Sentence.charge_id == Charge.id)
-                    .where(Charge.case_id.in_(case_ids), Sentence.completed_at.is_not(None))
+                    .join(Case, Judgment.case_id == Case.id)
+                    .where(
+                        Charge.case_id.in_(case_ids),
+                        Judgment.revision == Case.revision,
+                        Sentence.completed_at.is_not(None),
+                    )
                     .group_by(Charge.case_id)
                 )
             ).all()
