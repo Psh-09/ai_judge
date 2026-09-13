@@ -81,6 +81,8 @@ async def _find_cached_case(
             Case.code_hash == code_hash,
             Case.language == language,
             Case.status.in_([CaseStatus.SENTENCED, CaseStatus.DISMISSED]),
+            # 재심 실패 사건은 원심이 유효하긴 하지만 판례/캐시 대상에서는 제외한다 (plan.md §4).
+            Case.rejudgment_failed_at.is_(None),
         )
         .order_by(Case.created_at.desc())
         .limit(1)
