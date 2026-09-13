@@ -23,8 +23,32 @@ tags:
     description: 사건 제출/조회/항소
   - name: sentences
     description: 형량 체크리스트
+  - name: ops
+    description: 운영/헬스체크
 
 paths:
+  /health:
+    servers:
+      - url: /
+        description: 헬스체크는 버전 프리픽스(/api/v1) 없이 서버 루트에 노출된다.
+    get:
+      tags: [ops]
+      summary: 헬스체크
+      operationId: healthCheck
+      description: 서버 프로세스가 요청을 처리할 수 있는 상태인지 확인한다. 인증이 필요 없다.
+      security: []
+      responses:
+        "200":
+          description: 서버가 정상 응답 중임
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
   /auth/register:
     post:
       tags: [auth]
