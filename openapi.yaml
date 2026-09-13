@@ -202,7 +202,12 @@ paths:
                   value:
                     case_id: 8f14e45f-ceea-4c6a-9f3b-000000000001
                     cached: true
-                    origin: "octocat/sample-api@a1b2c3d, src/handlers/user.py"
+                    origin:
+                      type: github
+                      repo_url: https://github.com/octocat/sample-api
+                      commit_sha: a1b2c3d
+                      file_path: src/handlers/user.py
+                    origin_label: "octocat/sample-api@a1b2c3d · src/handlers/user.py"
                 inProgress:
                   summary: 동일 코드가 이미 진행 중
                   value:
@@ -854,8 +859,17 @@ components:
           type: boolean
           description: 동일 코드의 진행 중 사건을 그대로 반환한 경우에만 존재
         origin:
+          type: object
+          allOf: [{ $ref: "#/components/schemas/CaseOrigin" }]
+          nullable: true
+          description: 캐시 히트 시 원 사건의 출처(구조화된 값). CaseDetail.origin과 동일한 형태.
+        origin_label:
           type: string
-          description: 캐시 히트 시 원 사건의 출처. GitHub 링크면 "owner/repo@sha, path", 붙여넣기면 "붙여넣기로 제출됨"
+          nullable: true
+          description: >-
+            캐시 히트 안내에 바로 쓰는 표시용 문자열. GitHub 링크면
+            "owner/repo@sha · path", 붙여넣기면 "붙여넣기로 제출됨".
+          example: "octocat/sample-api@a1b2c3d · src/handlers/user.py"
         previous_case_id:
           type: string
           format: uuid

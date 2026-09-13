@@ -2,13 +2,13 @@
 
 설계 근거: `docs/plans/plan.md` (상세 스펙 이력은 `docs/superpowers/specs/2026-09-07-adversarial-code-review-design.md`)
 
-## M1 — 단심 재판 (검사→변호→판사, 법전 21개 조항, 증거 라인 검증, 스키마 강제)
+## M1 — 단심 재판 (검사→변호→판사, 법전 20개 조항, 증거 라인 검증, 스키마 강제)
 
 **백엔드**
 
 - DB 스키마 마이그레이션: `users`, `cases`, `charges`, `pleas`, `judgments`, `verdicts`, `sentences`(재심/GitHub 관련 컬럼은 포함하되 이 단계에선 미사용)
 - `cases(user_id, code_hash, language)`에 대해 `status NOT IN ('SENTENCED','DISMISSED','FAILED')` 조건의 부분 유니크 인덱스(진행 중 사건 중복 생성 방지)
-- `rules.yaml` 21개 조항 작성 + 부팅 시 검증(중복/필수필드/enum 유효성, 실패 시 기동 중단)
+- `rules.yaml` 20개 조항 작성 + 부팅 시 검증(중복/필수필드/enum 유효성, 실패 시 기동 중단)
 - 인증: 회원가입/로그인/토큰 재발급(JWT, bcrypt), 토큰은 httpOnly+Secure+SameSite=Lax 쿠키, CSRF 대응(커스텀 헤더 검증 또는 Double Submit Cookie 중 택일)
 - `POST /cases`(붙여넣기 모드만): 언어 고정 목록 검증, 라인≤500/문자≤20000 검증, 텍스트/시크릿 휴리스틱 경고, 24시간 슬라이딩 윈도우 기반 일일 20건 제한
 - 워커: DB 폴링(`SELECT FOR UPDATE SKIP LOCKED`), 스테이지 단위 처리, 하트비트(`locked_at` 주기 갱신) + 조건부 완료 커밋(`WHERE locked_by=... AND status=...`), 타임아웃 15분

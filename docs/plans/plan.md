@@ -127,7 +127,7 @@ LLM 기반 코드 리뷰는 흔히 두 가지 문제를 가진다.
 {
   "charges": [
     {
-      "rule_id": "SECURITY-001",
+      "rule_id": "SEC-003",
       "evidence_lines": [42, 58],
       "charged_severity": "HIGH",
       "severity_adjusted": true,
