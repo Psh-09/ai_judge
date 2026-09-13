@@ -104,7 +104,7 @@ paths:
       summary: 액세스 토큰 재발급
       description: 요청의 refresh_token 쿠키를 읽어 새 access_token 쿠키를 내려준다. 별도 요청 본문이 없다.
       security:
-        - cookieAuth: []
+        - refreshCookieAuth: []
       responses:
         "200":
           description: 재발급 성공, Set-Cookie로 새 access_token 전달
@@ -495,6 +495,15 @@ components:
         localStorage 등 JS로 접근 가능한 저장소는 쓰지 않는다(XSS 파급 범위 축소).
         상태 변경 요청(POST/PATCH)에는 CSRF 대응으로 커스텀 헤더 검증 또는
         Double Submit Cookie 패턴 중 하나가 함께 적용된다.
+    refreshCookieAuth:
+      type: apiKey
+      in: cookie
+      name: refresh_token
+      description: >
+        httpOnly + Secure + SameSite=Lax 쿠키로 전달되는 refresh_token.
+        access_token과는 별개의 쿠키이며 /auth/refresh에서만 쓰인다 —
+        access_token이 만료된 상태에서 호출하는 엔드포인트이므로 access_token
+        쿠키를 요구하면 안 된다.
 
   parameters:
     CaseId:
