@@ -885,7 +885,8 @@ components:
         charge_index: { type: integer }
         verdict: { $ref: "#/components/schemas/VerdictValue" }
         final_severity:
-          allOf: [{ $ref: "#/components/schemas/Severity" }]
+          type: string
+          enum: [HIGH, MEDIUM, LOW, null]
           nullable: true
           description: DISMISSED면 null
         reasoning: { type: string }
@@ -954,6 +955,7 @@ components:
           type: array
           items: { $ref: "#/components/schemas/Plea" }
         judgment:
+          type: object
           allOf: [{ $ref: "#/components/schemas/Judgment" }]
           nullable: true
           description: SENTENCED 전이거나 DISMISSED/FAILED면 null
