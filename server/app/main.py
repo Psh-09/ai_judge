@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 
 from app.config import get_settings
 from app.errors import ApiError
-from app.routers import auth, cases, health, rules
+from app.routers import auth, cases, health, rules, sentences
 from app.services.csrf import CSRF_HEADER_NAME, CSRF_HEADER_VALUE, requires_csrf_check
 from app.services.rule_catalog import RuleCatalog
 
@@ -50,3 +50,4 @@ app.include_router(health.router)
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(rules.router, prefix="/api/v1")
 app.include_router(cases.router, prefix="/api/v1")
+app.include_router(sentences.router, prefix="/api/v1")

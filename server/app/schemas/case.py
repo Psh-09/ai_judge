@@ -108,3 +108,46 @@ class CaseDetail(BaseModel):
     pleas: list[Plea]
     judgment: Judgment | None
     appeal: Appeal | None
+
+
+class SentenceToggleRequest(BaseModel):
+    completed: bool
+
+
+class SentenceProgress(BaseModel):
+    done: int
+    total: int
+
+
+class SentenceToggleResponse(BaseModel):
+    sentence_id: uuid.UUID
+    completed_at: datetime | None
+    progress: SentenceProgress
+
+
+class CaseSummary(BaseModel):
+    case_id: uuid.UUID
+    language: str
+    status: CaseStatus
+    origin_label: str
+    charges_count: int
+    sustained_count: int
+    sentence_progress: SentenceProgress
+    created_at: datetime
+
+
+class CaseListResponse(BaseModel):
+    items: list[CaseSummary]
+    page: int
+    per_page: int
+    total: int
+
+
+class RuleFrequencyItem(BaseModel):
+    rule_id: str
+    rule_title: str
+    count: int
+
+
+class RuleFrequencyResponse(BaseModel):
+    items: list[RuleFrequencyItem]
