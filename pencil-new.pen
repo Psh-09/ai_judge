@@ -1,0 +1,3509 @@
+{
+  "version": "2.17",
+  "children": [
+    {
+      "type": "frame",
+      "id": "Eg88D",
+      "x": 0,
+      "y": 0,
+      "name": "ChargeCard",
+      "reusable": true,
+      "width": 1332,
+      "fill": "$bg-panel",
+      "stroke": "$border",
+      "strokeWidth": 1,
+      "layout": "vertical",
+      "gap": 14,
+      "padding": 20,
+      "children": [
+        {
+          "type": "frame",
+          "id": "U8yAca",
+          "name": "Header",
+          "width": "fill_container",
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "n3Dk0B",
+              "name": "RuleGroup",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "np3CN",
+                  "name": "RuleId",
+                  "fill": "$accent-gold",
+                  "content": "SEC-003",
+                  "fontFamily": "$font-mono",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "ofLLy",
+                  "name": "Title",
+                  "fill": "$text-primary",
+                  "content": "SQL 문자열 결합",
+                  "fontFamily": "$font-body",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "f2tl9",
+              "name": "BadgeGroup",
+              "gap": 14,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "h0OwXy",
+                  "name": "SeverityRow",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "aPAiL",
+                      "name": "SeverityFrom",
+                      "fill": "$severity-high-bg",
+                      "padding": [
+                        2,
+                        7
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oDMk6",
+                          "name": "SeverityFromLabel",
+                          "fill": "$severity-high",
+                          "content": "HIGH",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "icon",
+                      "id": "W9a1nJ",
+                      "x": 0,
+                      "y": 0,
+                      "name": "SeverityArrow",
+                      "enabled": false,
+                      "width": 14,
+                      "height": 14,
+                      "icon": "arrow-right",
+                      "library": "lucide",
+                      "fill": "$text-secondary"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "g9GbSN",
+                      "x": 0,
+                      "y": 0,
+                      "name": "SeverityTo",
+                      "enabled": false,
+                      "fill": "$severity-medium-bg",
+                      "padding": [
+                        2,
+                        7
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MLHZv",
+                          "name": "SeverityToLabel",
+                          "fill": "$severity-medium",
+                          "content": "MEDIUM",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Khr9p",
+                  "name": "VerdictBadge",
+                  "fill": "$text-primary",
+                  "stroke": "$text-primary",
+                  "padding": [
+                    7,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "x0Mbcs",
+                      "name": "VerdictLabel",
+                      "fill": "$bg-page",
+                      "content": "채택",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "800",
+                      "letterSpacing": 0.4
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "k1xZn",
+          "name": "EvidenceTag",
+          "stroke": "$border-strong",
+          "strokeWidth": 1,
+          "padding": [
+            4,
+            10
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "CKi26",
+              "name": "EvidenceLabel",
+              "fill": "$line-ref",
+              "content": "증거 L42",
+              "fontFamily": "$font-mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "agS68",
+          "name": "Narrative",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 10,
+          "children": [
+            {
+              "type": "frame",
+              "id": "BjOtr",
+              "name": "ProsecutionRow",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 3,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "H2b7r",
+                  "name": "ProsecutionLabel",
+                  "fill": "$text-tertiary",
+                  "content": "검사 주장",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal",
+                  "letterSpacing": 0.8
+                },
+                {
+                  "type": "text",
+                  "id": "yl3dh",
+                  "name": "ProsecutionValue",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "...",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Q1RRI",
+              "name": "DefenseRow",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 3,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "t6daj",
+                  "name": "DefenseLabel",
+                  "fill": "$text-tertiary",
+                  "content": "변론",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal",
+                  "letterSpacing": 0.8
+                },
+                {
+                  "type": "text",
+                  "id": "wWN5O",
+                  "name": "DefenseValue",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "...",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "SDRLp",
+              "name": "ReasonRow",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 3,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qlf9A",
+                  "name": "ReasonLabel",
+                  "fill": "$text-tertiary",
+                  "content": "판정 사유",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal",
+                  "letterSpacing": 0.8
+                },
+                {
+                  "type": "text",
+                  "id": "c6cxDJ",
+                  "name": "ReasonValue",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "...",
+                  "lineHeight": 1.5,
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "gry1Z",
+          "x": 0,
+          "y": 0,
+          "name": "PrecedentTag",
+          "enabled": false,
+          "gap": 6,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "B3s85T",
+              "name": "PrecedentIcon",
+              "width": 12,
+              "height": 12,
+              "icon": "history",
+              "library": "lucide",
+              "fill": "$text-tertiary"
+            },
+            {
+              "type": "text",
+              "id": "Xooez",
+              "name": "PrecedentLabel",
+              "fill": "$text-tertiary",
+              "content": "유사 판례 3건 참고",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "JWvnx",
+      "x": 0,
+      "y": 400,
+      "name": "판결문",
+      "width": 1440,
+      "fill": "$bg-page",
+      "gap": 40,
+      "padding": 56,
+      "children": [
+        {
+          "type": "frame",
+          "id": "z4DbC",
+          "name": "LeftColumn",
+          "width": 580,
+          "stroke": "$border",
+          "strokeWidth": {
+            "right": 1
+          },
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Ibzms",
+              "name": "SourceBlock",
+              "width": "fill_container",
+              "fill": "$bg-panel",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                12,
+                16
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "CeO8C",
+                  "name": "MetaRow",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Zrruq",
+                      "name": "GithubIcon",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "github",
+                      "library": "lucide",
+                      "fill": "$text-secondary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Oimn6",
+                      "name": "RepoName",
+                      "fill": "$text-primary",
+                      "content": "octocat/sample-api",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "cNVku",
+                      "name": "Dot1",
+                      "fill": "$text-tertiary",
+                      "content": "·",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "L0jO1o",
+                      "name": "CommitBadge",
+                      "fill": "$bg-panel-2",
+                      "padding": [
+                        2,
+                        8
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "pICNU",
+                          "name": "CommitSha",
+                          "fill": "$text-secondary",
+                          "content": "a1b2c3d",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "m2Wlp",
+                      "name": "Dot2",
+                      "fill": "$text-tertiary",
+                      "content": "·",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "fdmUV",
+                      "name": "FilePath",
+                      "fill": "$text-secondary",
+                      "content": "src/handlers/user.py",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IR9Hb",
+                  "name": "LinkGroup",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Z98wRh",
+                      "name": "LinkLabel",
+                      "fill": "$accent-gold",
+                      "content": "GitHub에서 보기",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon",
+                      "id": "fQIQi",
+                      "name": "ExternalIcon",
+                      "width": 13,
+                      "height": 13,
+                      "icon": "external-link",
+                      "library": "lucide",
+                      "fill": "$accent-gold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "NPltP",
+              "name": "CodeBlock",
+              "width": "fill_container",
+              "fill": "#08090D",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "padding": [
+                16,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tU11T",
+                  "name": "Line1",
+                  "width": "fill_container",
+                  "height": 24,
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "b3g2l9",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "1",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "v8sM2",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "import re",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bE7ab",
+                  "name": "Line2",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "pJhnd",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "2",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lS4r1",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "import sqlite3",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GIhfi",
+                  "name": "Line3",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "vIoqj",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "3",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "vyPEh",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "from flask import Blueprint, request, jsonify",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GseXC",
+                  "name": "Line4",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MpfQj",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "4",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "jR1BE",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": " ",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "N9FTHh",
+                  "name": "Line5",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zwf60",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "5",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FvN1V",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "user_bp = Blueprint(\"user\", __name__)",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vC2XK",
+                  "name": "Line6",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "OCQtd",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "6",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lT8cE",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": " ",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "y8juvA",
+                  "name": "Line7",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "nu6CZ",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "7",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HopJc",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "EMAIL_PATTERN = re.compile(r\"^[^@]+@[^@]+\\.[^@]+$\")",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "f7g8U5",
+                  "name": "Line8",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "N5VLZ",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "8",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wIiAv",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": " ",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "W4QrNd",
+                  "name": "Line9",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "i8CUJJ",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "9",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "vYxs5",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": " ",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dcJM7",
+                  "name": "Line10",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "d8l7gF",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "10",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "JLwSR",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "def get_db():",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wkovs",
+                  "name": "Line11",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ONsQI",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "11",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "V1MT2",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    return sqlite3.connect(\"app.db\")",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "v8J89",
+                  "name": "Line12",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ppJRr",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "12",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SqvAg",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": " ",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "jOjKp",
+                  "name": "Line13",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "s7ZKgJ",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "13",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "V72YAF",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": " ",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZpW5f",
+                  "name": "Line14",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "X8aZOJ",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "14",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "jxjDh",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "def validate_email(addr):",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GhsON",
+                  "name": "Line15",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "oIpjw",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "15",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "n6duDM",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    m = EMAIL_PATTERN.match(addr)",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "nN0Tt",
+                  "name": "Line16",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Rr4Sb",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "16",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LK6fs",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    if not m:",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tNPTJ",
+                  "name": "Line17",
+                  "width": "fill_container",
+                  "fill": "$severity-low-bg",
+                  "stroke": "$severity-low",
+                  "strokeWidth": {
+                    "left": 3
+                  },
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Cyr91",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "17",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "BP49Y",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "        e = \"invalid email format\"",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rmpv4",
+                  "name": "Line18",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QCUZc",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "18",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "N8Jt01",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "        raise ValueError(e)",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eBibz",
+                  "name": "Line19",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XoMhF",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "19",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DXSyA",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    return True",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sCpMu",
+                  "name": "Collapse",
+                  "width": "fill_container",
+                  "padding": [
+                    6,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IbJgR",
+                      "name": "CollapseLabel",
+                      "fill": "$text-tertiary",
+                      "content": "⋯ 20줄 생략 ⋯",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "KImNF",
+                  "name": "Line40",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fqi3z",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "40",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lfvqp",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    uid = request.args.get(\"id\")",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ky1fl",
+                  "name": "Line41",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bzVpy",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "41",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tHGR3",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    conn = get_db()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "y3Inn",
+                  "name": "Line42",
+                  "width": "fill_container",
+                  "fill": "$severity-high-bg",
+                  "stroke": "$severity-high",
+                  "strokeWidth": {
+                    "left": 3
+                  },
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "VjuKW",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "42",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "N7b8Nh",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    query = \"SELECT * FROM users WHERE id = '\" + uid + \"'\"",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Dc9y2",
+                  "name": "Line43",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "wltsE",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "43",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "VdWL2",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    row = conn.execute(query).fetchone()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "L2mnPr",
+                  "name": "Line44",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KS3yD",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "44",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KJSUV",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    conn.close()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "htcFK",
+                  "name": "Line45",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hLPwJ",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "45",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XjX95",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    return jsonify(row)",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "QY7Ty",
+                  "name": "Collapse",
+                  "width": "fill_container",
+                  "padding": [
+                    6,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lwa71",
+                      "name": "CollapseLabel",
+                      "fill": "$text-tertiary",
+                      "content": "⋯ 17줄 생략 ⋯",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "UgG7I",
+                  "name": "Line63",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "TGYTd",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "63",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "hngzB",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    # 관리자 대시보드용 임시 포트",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mxEFy",
+                  "name": "Line64",
+                  "width": "fill_container",
+                  "fill": "$severity-low-bg",
+                  "stroke": "$severity-low",
+                  "strokeWidth": {
+                    "left": 3
+                  },
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Z5hX7I",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "64",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "bSGjR",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    server = http.server.HTTPServer((\"0.0.0.0\", 8080), Handler)",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Z6ZSb",
+                  "name": "Collapse",
+                  "width": "fill_container",
+                  "padding": [
+                    6,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "plyut",
+                      "name": "CollapseLabel",
+                      "fill": "$text-tertiary",
+                      "content": "⋯ 23줄 생략 ⋯",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CSIh5",
+                  "name": "Line88",
+                  "width": "fill_container",
+                  "fill": "$severity-medium-bg",
+                  "stroke": "$severity-medium",
+                  "strokeWidth": {
+                    "left": 3
+                  },
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "X7que",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "88",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mNygL",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "def parse_and_save(payload):",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "s1BEIR",
+                  "name": "Line89",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ZC9F0",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "89",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "S5tlM",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    data = {}",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Q5glvq",
+                  "name": "Line90",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "yLLvA",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "90",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "H4JeZX",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    data[\"name\"] = payload.get(\"name\", \"\").strip()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SLmov",
+                  "name": "Line91",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bJTyX",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "91",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "D50GTI",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    data[\"email\"] = payload.get(\"email\", \"\").strip()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PRHMi",
+                  "name": "Line92",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Px2yL",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "92",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "VxlZN",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    validate_email(data[\"email\"])",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XRQlT",
+                  "name": "Collapse",
+                  "width": "fill_container",
+                  "padding": [
+                    6,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sILtp",
+                      "name": "CollapseLabel",
+                      "fill": "$text-tertiary",
+                      "content": "⋯ 검증 로직 43줄 생략 ⋯",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "u88bC",
+                  "name": "Line136",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "HNrqG",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "136",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "pa11y",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    conn = get_db()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZnOgx",
+                  "name": "Line137",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "omcUu",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "137",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "I46Cgr",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    conn.execute(INSERT_SQL, (data[\"name\"], data[\"email\"]))",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "WvuFE",
+                  "name": "Line138",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "InXpT",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "138",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yq6Mv",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    conn.commit()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Tv4nK",
+                  "name": "Line139",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IrUX9",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "139",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "odGw1",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    conn.close()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "s5JnWn",
+                  "name": "Line140",
+                  "width": "fill_container",
+                  "fill": "$severity-medium-bg",
+                  "stroke": "$severity-medium",
+                  "strokeWidth": {
+                    "left": 3
+                  },
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "mIg7r",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "140",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yE909",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    return data",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "FC0rW",
+                  "name": "Collapse",
+                  "width": "fill_container",
+                  "padding": [
+                    6,
+                    0
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "e96cF",
+                      "name": "CollapseLabel",
+                      "fill": "$text-tertiary",
+                      "content": "⋯ 12줄 생략 ⋯",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "kWkae",
+                  "name": "Line153",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qmiw9",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "153",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZNXyV",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "def sync_profile(user_id):",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CcDzB",
+                  "name": "Line154",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aN4Cf",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "154",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "X0LVsc",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    conn = get_db()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pGPul",
+                  "name": "Line155",
+                  "width": "fill_container",
+                  "fill": "$severity-high-bg",
+                  "stroke": "$severity-high",
+                  "strokeWidth": {
+                    "left": 3
+                  },
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "G71nL",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "155",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "t8guSz",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    try:",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cjzdI",
+                  "name": "Line156",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "L0ducG",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "156",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "UhRyQ",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "        row = conn.execute(SELECT_SQL, (user_id,)).fetchone()",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Rx2WR",
+                  "name": "Line157",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "GyVWD",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "157",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "F4bNn2",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "        push_to_crm(row)",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yTxuu",
+                  "name": "Line158",
+                  "width": "fill_container",
+                  "fill": "$severity-high-bg",
+                  "stroke": "$severity-high",
+                  "strokeWidth": {
+                    "left": 3
+                  },
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WRr2e",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "158",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "QbBV6",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "    except Exception as e:",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "d3EzS",
+                  "name": "Line159",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "padding": [
+                    1,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "RX6LP",
+                      "name": "Num",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": 30,
+                      "content": "159",
+                      "textAlign": "right",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 10.5,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lOQQu",
+                      "name": "Code",
+                      "fill": "$text-secondary",
+                      "content": "        logger.error(\"sync failed: %s\", e)",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "nn12z",
+                  "name": "CodeFooter",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "top": 1
+                  },
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": [
+                    14,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "X1eia",
+                      "name": "FooterMeta",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "q8IpSq",
+                          "name": "LangTag",
+                          "fill": "$text-secondary",
+                          "content": "PYTHON",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "fAoGU",
+                          "name": "FooterDot",
+                          "fill": "$text-tertiary",
+                          "content": "·",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "A4wfHj",
+                          "name": "LineCount",
+                          "fill": "$text-secondary",
+                          "content": "187줄",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "qhK0T",
+                      "name": "ChipsLabel",
+                      "fill": "$text-tertiary",
+                      "content": "기소 라인",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "normal",
+                      "letterSpacing": 0.8
+                    },
+                    {
+                      "type": "frame",
+                      "id": "HBDvd",
+                      "name": "EvidenceChips",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "P1tmJd",
+                          "name": "ChipL17",
+                          "fill": "$bg-panel-2",
+                          "stroke": "$border-strong",
+                          "strokeWidth": 1,
+                          "padding": [
+                            3,
+                            9
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Mrq5P",
+                              "name": "ChipLabel",
+                              "fill": "$accent-gold",
+                              "content": "L17",
+                              "fontFamily": "$font-mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "eKrgK",
+                          "name": "ChipL42",
+                          "fill": "$bg-panel-2",
+                          "stroke": "$border-strong",
+                          "strokeWidth": 1,
+                          "padding": [
+                            3,
+                            9
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "phv8g",
+                              "name": "ChipLabel",
+                              "fill": "$accent-gold",
+                              "content": "L42",
+                              "fontFamily": "$font-mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "w4VOAl",
+                          "name": "ChipL63",
+                          "fill": "$bg-panel-2",
+                          "stroke": "$border-strong",
+                          "strokeWidth": 1,
+                          "padding": [
+                            3,
+                            9
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ICNlW",
+                              "name": "ChipLabel",
+                              "fill": "$accent-gold",
+                              "content": "L63",
+                              "fontFamily": "$font-mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "rUrLp",
+                          "name": "ChipL88–L140",
+                          "fill": "$bg-panel-2",
+                          "stroke": "$border-strong",
+                          "strokeWidth": 1,
+                          "padding": [
+                            3,
+                            9
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gwrD0",
+                              "name": "ChipLabel",
+                              "fill": "$accent-gold",
+                              "content": "L88–L140",
+                              "fontFamily": "$font-mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Tt0dp",
+                          "name": "ChipL155–L158",
+                          "fill": "$bg-panel-2",
+                          "stroke": "$border-strong",
+                          "strokeWidth": 1,
+                          "padding": [
+                            3,
+                            9
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "veeYk",
+                              "name": "ChipLabel",
+                              "fill": "$accent-gold",
+                              "content": "L155–L158",
+                              "fontFamily": "$font-mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "AuuUe",
+          "name": "RightColumn",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 28,
+          "children": [
+            {
+              "type": "frame",
+              "id": "w2hpSS",
+              "name": "TopSummary",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 18,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "sd0xD",
+                  "name": "TopLeft",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ipizl",
+                      "name": "CaseId",
+                      "fill": "$text-secondary",
+                      "content": "CASE-2026-0908-041",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lk1ie",
+                      "name": "Lang",
+                      "fill": "$text-tertiary",
+                      "content": "PYTHON",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xoeod",
+                      "name": "StatusBadge",
+                      "stroke": "$accent-gold-dim",
+                      "strokeWidth": 1,
+                      "padding": [
+                        4,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yycgz",
+                          "name": "StatusLabel",
+                          "fill": "$accent-gold",
+                          "content": "판결 확정",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "D3Ygmn",
+                  "name": "StatsRow",
+                  "width": "fill_container",
+                  "gap": 28,
+                  "alignItems": "end",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Uz0II",
+                      "name": "TotalLabel",
+                      "fill": "$text-secondary",
+                      "content": "기소 5건",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "J4c5f",
+                      "name": "StatDivider",
+                      "width": 1,
+                      "height": 28,
+                      "fill": "$border"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "K6STc",
+                      "name": "채택Stat",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "RknxB",
+                          "name": "채택Num",
+                          "fill": "$text-primary",
+                          "content": "2",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 30,
+                          "fontWeight": "800"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Z6rTX",
+                          "name": "채택Lbl",
+                          "fill": "$text-secondary",
+                          "content": "채택",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "normal",
+                          "letterSpacing": 0.6
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JRP3s",
+                      "name": "감형Stat",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "VROU4",
+                          "name": "감형Num",
+                          "fill": "$text-primary",
+                          "content": "1",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 30,
+                          "fontWeight": "800"
+                        },
+                        {
+                          "type": "text",
+                          "id": "J4kS2",
+                          "name": "감형Lbl",
+                          "fill": "$text-secondary",
+                          "content": "감형",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "normal",
+                          "letterSpacing": 0.6
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sd37z",
+                      "name": "기각Stat",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MVhFC",
+                          "name": "기각Num",
+                          "fill": "$text-primary",
+                          "content": "2",
+                          "fontFamily": "$font-mono",
+                          "fontSize": 30,
+                          "fontWeight": "800"
+                        },
+                        {
+                          "type": "text",
+                          "id": "rjfQu",
+                          "name": "기각Lbl",
+                          "fill": "$text-secondary",
+                          "content": "기각",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "normal",
+                          "letterSpacing": 0.6
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mvOOx",
+              "name": "Opinion",
+              "width": "fill_container",
+              "stroke": "$accent-gold-dim",
+              "strokeWidth": {
+                "left": 6
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                24,
+                28
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "J7BXgY",
+                  "name": "OpinionLabel",
+                  "fill": "$text-tertiary",
+                  "content": "판사 총평",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1.5
+                },
+                {
+                  "type": "text",
+                  "id": "P2WSt",
+                  "name": "OpinionText",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "전반적으로 동작하는 코드이나, 입력 검증과 함수 단위 책임 분리가 미흡하다. 보안 관련 지적 1건은 즉시 수정이 필요하다.",
+                  "lineHeight": 1.6,
+                  "fontFamily": "$font-body",
+                  "fontSize": 23,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "z21oZ",
+              "name": "ChargesList",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 32,
+              "children": [
+                {
+                  "id": "z10oB",
+                  "type": "ref",
+                  "ref": "Eg88D",
+                  "name": "SEC-003",
+                  "width": "fill_container",
+                  "descendants": {
+                    "np3CN": {
+                      "content": "SEC-003",
+                      "fill": "$accent-gold"
+                    },
+                    "ofLLy": {
+                      "content": "SQL 문자열 결합",
+                      "fill": "$text-primary"
+                    },
+                    "aPAiL": {
+                      "fill": "$severity-high-bg"
+                    },
+                    "oDMk6": {
+                      "content": "HIGH",
+                      "fill": "$severity-high"
+                    },
+                    "x0Mbcs": {
+                      "content": "채택"
+                    },
+                    "CKi26": {
+                      "content": "증거 L42"
+                    },
+                    "yl3dh": {
+                      "content": "42번 줄에서 사용자 입력값을 문자열 결합으로 쿼리에 직접 삽입한다. 파라미터 바인딩이 없어 SQL 인젝션에 노출된다."
+                    },
+                    "wWN5O": {
+                      "content": "이 호출은 내부 관리자 스크립트에서만 실행되므로 외부 공격 표면이 아니다."
+                    },
+                    "c6cxDJ": {
+                      "content": "사용자 입력이 검증 없이 쿼리에 결합된다. 변론의 '내부 스크립트' 주장은 입력 경로가 외부에 열려 있어 성립하지 않는다.",
+                      "fill": "$text-primary"
+                    },
+                    "gry1Z": {
+                      "enabled": true
+                    }
+                  }
+                },
+                {
+                  "id": "E66dh",
+                  "type": "ref",
+                  "ref": "Eg88D",
+                  "name": "STRUCT-001",
+                  "width": "fill_container",
+                  "descendants": {
+                    "np3CN": {
+                      "content": "STRUCT-001",
+                      "fill": "$accent-gold"
+                    },
+                    "ofLLy": {
+                      "content": "함수 길이 과다",
+                      "fill": "$text-primary"
+                    },
+                    "aPAiL": {
+                      "fill": "$severity-medium-bg"
+                    },
+                    "oDMk6": {
+                      "content": "MEDIUM",
+                      "fill": "$severity-medium"
+                    },
+                    "x0Mbcs": {
+                      "content": "채택"
+                    },
+                    "CKi26": {
+                      "content": "증거 L88–L140"
+                    },
+                    "yl3dh": {
+                      "content": "parse_and_save 함수가 52줄에 걸쳐 파싱, 검증, 저장 로직을 한 번에 처리한다."
+                    },
+                    "wWN5O": {
+                      "content": "레거시 호환을 위해 하나의 트랜잭션으로 묶어야 했다."
+                    },
+                    "c6cxDJ": {
+                      "content": "52줄 단일 함수가 파싱·검증·저장을 함께 처리한다.",
+                      "fill": "$text-primary"
+                    }
+                  }
+                },
+                {
+                  "id": "k7blrB",
+                  "type": "ref",
+                  "ref": "Eg88D",
+                  "name": "ERR-002",
+                  "width": "fill_container",
+                  "descendants": {
+                    "np3CN": {
+                      "content": "ERR-002",
+                      "fill": "$accent-gold"
+                    },
+                    "ofLLy": {
+                      "content": "광범위 예외 처리",
+                      "fill": "$text-primary"
+                    },
+                    "aPAiL": {
+                      "fill": "$severity-high-bg"
+                    },
+                    "oDMk6": {
+                      "content": "HIGH",
+                      "fill": "$severity-high"
+                    },
+                    "W9a1nJ": {
+                      "enabled": true
+                    },
+                    "g9GbSN": {
+                      "enabled": true,
+                      "fill": "$severity-medium-bg"
+                    },
+                    "MLHZv": {
+                      "content": "MEDIUM",
+                      "fill": "$severity-medium"
+                    },
+                    "Khr9p": {
+                      "fill": "#00000000",
+                      "stroke": "$text-primary",
+                      "strokeWidth": 1.5
+                    },
+                    "x0Mbcs": {
+                      "content": "감형",
+                      "fill": "$text-primary"
+                    },
+                    "CKi26": {
+                      "content": "증거 L155–L158"
+                    },
+                    "yl3dh": {
+                      "content": "except 절이 예외 타입을 명시하지 않고 모든 오류를 포괄한다."
+                    },
+                    "wWN5O": {
+                      "content": "해당 구간에 실패를 기록하는 로깅이 포함되어 있다."
+                    },
+                    "c6cxDJ": {
+                      "content": "except 범위가 넓은 것은 사실이나, 로깅이 포함되어 실패가 은폐되지는 않는다.",
+                      "fill": "$text-primary"
+                    },
+                    "gry1Z": {
+                      "enabled": true
+                    }
+                  }
+                },
+                {
+                  "id": "EnLXD",
+                  "type": "ref",
+                  "ref": "Eg88D",
+                  "name": "NAMING-002",
+                  "width": "fill_container",
+                  "fill": "$bg-page",
+                  "strokeWidth": 0,
+                  "padding": 24,
+                  "descendants": {
+                    "np3CN": {
+                      "content": "NAMING-002",
+                      "fill": "$text-tertiary"
+                    },
+                    "ofLLy": {
+                      "content": "축약 변수명",
+                      "fill": "$text-secondary"
+                    },
+                    "aPAiL": {
+                      "fill": "$severity-low-bg"
+                    },
+                    "oDMk6": {
+                      "content": "LOW",
+                      "fill": "$severity-low"
+                    },
+                    "Khr9p": {
+                      "stroke": "$text-primary",
+                      "strokeWidth": 1.5,
+                      "fill": "#00000000",
+                      "padding": [
+                        7,
+                        16
+                      ]
+                    },
+                    "x0Mbcs": {
+                      "content": "기각",
+                      "fill": "$text-primary",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    "CKi26": {
+                      "content": "증거 L17"
+                    },
+                    "yl3dh": {
+                      "content": "변수명 e가 의미를 알 수 없는 축약이다."
+                    },
+                    "wWN5O": {
+                      "content": "이 변수는 선언 후 3줄 내에서만 사용되는 지역 변수다."
+                    },
+                    "c6cxDJ": {
+                      "content": "변론 인정. 스코프가 3줄이라 조항 적용이 과하다.",
+                      "fill": "$text-primary"
+                    }
+                  }
+                },
+                {
+                  "id": "vPert",
+                  "type": "ref",
+                  "ref": "Eg88D",
+                  "name": "STYLE-001",
+                  "width": "fill_container",
+                  "fill": "$bg-page",
+                  "strokeWidth": 0,
+                  "padding": 24,
+                  "descendants": {
+                    "np3CN": {
+                      "content": "STYLE-001",
+                      "fill": "$text-tertiary"
+                    },
+                    "ofLLy": {
+                      "content": "매직 넘버",
+                      "fill": "$text-secondary"
+                    },
+                    "aPAiL": {
+                      "fill": "$severity-low-bg"
+                    },
+                    "oDMk6": {
+                      "content": "LOW",
+                      "fill": "$severity-low"
+                    },
+                    "Khr9p": {
+                      "stroke": "$text-primary",
+                      "strokeWidth": 1.5,
+                      "fill": "#00000000",
+                      "padding": [
+                        7,
+                        16
+                      ]
+                    },
+                    "x0Mbcs": {
+                      "content": "기각",
+                      "fill": "$text-primary",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    "CKi26": {
+                      "content": "증거 L63"
+                    },
+                    "yl3dh": {
+                      "content": "63번 줄의 숫자 리터럴 8080이 의미 설명 없이 하드코딩되어 있다."
+                    },
+                    "wWN5O": {
+                      "content": "바로 위 주석에 포트 번호라는 의미가 설명되어 있다."
+                    },
+                    "c6cxDJ": {
+                      "content": "상수의 의미가 인접 주석으로 설명되어 있어 가독성 저해가 없다.",
+                      "fill": "$text-primary"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "sGxxs",
+              "name": "SentenceSummary",
+              "width": "fill_container",
+              "fill": "$bg-panel",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                16,
+                20
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mOcSK",
+                  "name": "SentenceCount",
+                  "fill": "$text-primary",
+                  "content": "형량 3건",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "LV8cW",
+                  "name": "GoToChecklist",
+                  "stroke": "$effort-color",
+                  "strokeWidth": 1,
+                  "gap": 6,
+                  "padding": [
+                    8,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XFuBd",
+                      "name": "GoToChecklistLabel",
+                      "fill": "$effort-color",
+                      "content": "형량 체크리스트로 이동",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon",
+                      "id": "qk2q7",
+                      "name": "GoToChecklistIcon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "arrow-right",
+                      "library": "lucide",
+                      "fill": "$effort-color"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "uodZ4",
+              "name": "AppealRow",
+              "width": "fill_container",
+              "justifyContent": "end",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ynASi",
+                  "name": "AppealButton",
+                  "stroke": "$accent-gold",
+                  "strokeWidth": 1.5,
+                  "padding": [
+                    10,
+                    22
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "t6idf1",
+                      "name": "AppealLabel",
+                      "fill": "$accent-gold",
+                      "content": "항소하기",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "sb5r9",
+      "x": 0,
+      "y": 2500,
+      "name": "SentenceRow",
+      "reusable": true,
+      "width": 1328,
+      "stroke": "$border",
+      "strokeWidth": {
+        "bottom": 1
+      },
+      "gap": 16,
+      "padding": [
+        18,
+        4
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "xvFZ2",
+          "name": "Checkbox",
+          "width": 24,
+          "height": 24,
+          "stroke": "$border-strong",
+          "strokeWidth": 1,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "dWQQG",
+              "x": 0,
+              "y": 0,
+              "name": "CheckIcon",
+              "enabled": false,
+              "width": 14,
+              "height": 14,
+              "icon": "check",
+              "library": "lucide",
+              "fill": "$bg-page"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Pp5gj",
+          "name": "TextCol",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "text",
+              "id": "RUa5M",
+              "name": "TaskText",
+              "fill": "$text-primary",
+              "content": "과제 문구",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "HmKNQ",
+              "name": "MetaRow",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "T09zm0",
+                  "name": "LineBadge",
+                  "fill": "$bg-panel-2",
+                  "stroke": "$border-strong",
+                  "strokeWidth": 1,
+                  "padding": [
+                    3,
+                    9
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "C3ctA",
+                      "name": "LineLabel",
+                      "fill": "$line-ref",
+                      "content": "L42",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SlWMU",
+                  "name": "EffortGroup",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "iKNeJ",
+                      "name": "Bars",
+                      "gap": 2,
+                      "alignItems": "end",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "gX2er",
+                          "name": "Bar1",
+                          "width": 4,
+                          "height": 6,
+                          "fill": "$border-strong"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "E4jlS",
+                          "name": "Bar2",
+                          "width": 4,
+                          "height": 10,
+                          "fill": "$border-strong"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "fvaZH",
+                          "name": "Bar3",
+                          "width": 4,
+                          "height": 14,
+                          "fill": "$border-strong"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "u2DMX",
+                      "name": "EffortLabel",
+                      "fill": "$effort-color",
+                      "content": "SMALL",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ncVcA",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 11,
+              "name": "StrikeLine",
+              "enabled": false,
+              "width": 852,
+              "height": 2,
+              "fill": "$text-secondary"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Ae2Do",
+      "x": 0,
+      "y": 2700,
+      "name": "형량 체크리스트",
+      "width": 1440,
+      "fill": "$bg-page",
+      "layout": "vertical",
+      "gap": 32,
+      "padding": 56,
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "MM34n",
+          "name": "ContentWrap",
+          "width": 900,
+          "layout": "vertical",
+          "gap": 32,
+          "children": [
+            {
+              "type": "frame",
+              "id": "dizWy",
+              "name": "TopRow",
+              "width": "fill_container",
+              "gap": 14,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qv9uy",
+                  "name": "Title",
+                  "fill": "$text-primary",
+                  "content": "형량 체크리스트",
+                  "fontFamily": "$font-body",
+                  "fontSize": 20,
+                  "fontWeight": "800"
+                },
+                {
+                  "type": "text",
+                  "id": "eG3Is",
+                  "name": "CaseTag",
+                  "fill": "$text-tertiary",
+                  "content": "CASE-2026-0908-041",
+                  "fontFamily": "$font-mono",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ry1qg",
+              "name": "SentenceList",
+              "width": "fill_container",
+              "layout": "vertical",
+              "children": [
+                {
+                  "id": "sCsMF",
+                  "type": "ref",
+                  "ref": "sb5r9",
+                  "name": "L42",
+                  "width": "fill_container",
+                  "descendants": {
+                    "xvFZ2": {
+                      "fill": "$effort-color",
+                      "stroke": "$effort-color"
+                    },
+                    "dWQQG": {
+                      "enabled": true
+                    },
+                    "RUa5M": {
+                      "content": "42번 줄 쿼리를 파라미터 바인딩으로 교체",
+                      "fill": "$text-secondary"
+                    },
+                    "C3ctA": {
+                      "content": "L42",
+                      "fill": "$text-tertiary"
+                    },
+                    "gX2er": {
+                      "fill": "$text-tertiary"
+                    },
+                    "u2DMX": {
+                      "content": "SMALL",
+                      "fill": "$text-tertiary"
+                    },
+                    "ncVcA": {
+                      "enabled": true,
+                      "fill": "$text-secondary"
+                    }
+                  }
+                },
+                {
+                  "id": "uqcsJ",
+                  "type": "ref",
+                  "ref": "sb5r9",
+                  "name": "L88–L140",
+                  "width": "fill_container",
+                  "descendants": {
+                    "RUa5M": {
+                      "content": "parse_and_save()를 파싱·검증·저장 세 함수로 분리",
+                      "fill": "$text-primary"
+                    },
+                    "C3ctA": {
+                      "content": "L88–L140",
+                      "fill": "$line-ref"
+                    },
+                    "gX2er": {
+                      "fill": "$effort-color"
+                    },
+                    "E4jlS": {
+                      "fill": "$effort-color"
+                    },
+                    "fvaZH": {
+                      "fill": "$effort-color"
+                    },
+                    "u2DMX": {
+                      "content": "LARGE",
+                      "fill": "$effort-color"
+                    }
+                  }
+                },
+                {
+                  "id": "RYfCx",
+                  "type": "ref",
+                  "ref": "sb5r9",
+                  "name": "L155–L158",
+                  "width": "fill_container",
+                  "descendants": {
+                    "RUa5M": {
+                      "content": "except 절을 예상 예외 타입으로 좁힘",
+                      "fill": "$text-primary"
+                    },
+                    "C3ctA": {
+                      "content": "L155–L158",
+                      "fill": "$line-ref"
+                    },
+                    "gX2er": {
+                      "fill": "$effort-color"
+                    },
+                    "E4jlS": {
+                      "fill": "$effort-color"
+                    },
+                    "u2DMX": {
+                      "content": "MEDIUM",
+                      "fill": "$effort-color"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "xSBoS",
+              "name": "ProgressFooter",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "layout": "vertical",
+              "gap": 10,
+              "padding": [
+                24,
+                0,
+                0,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "u9v6gK",
+                  "name": "ProgressRow",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "a3ooHE",
+                      "name": "ProgressLabel",
+                      "fill": "$text-secondary",
+                      "content": "이행률",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "acHEJ",
+                      "name": "ProgressCount",
+                      "fill": "$text-primary",
+                      "content": "1 / 3 완료",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "apMS3",
+                  "name": "ProgressBarBg",
+                  "width": 900,
+                  "height": 10,
+                  "fill": "$bg-panel-2",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "cgn91",
+                      "x": 0,
+                      "y": 0,
+                      "name": "ProgressBarFill",
+                      "width": 300,
+                      "height": 10,
+                      "fill": "$effort-color"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "bg-page": {
+      "type": "color",
+      "value": "#0A0A0A"
+    },
+    "bg-panel": {
+      "type": "color",
+      "value": "#1A1A1A"
+    },
+    "bg-panel-2": {
+      "type": "color",
+      "value": "#27272A"
+    },
+    "border": {
+      "type": "color",
+      "value": "#27272A"
+    },
+    "border-strong": {
+      "type": "color",
+      "value": "#3F3F46"
+    },
+    "text-primary": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "text-secondary": {
+      "type": "color",
+      "value": "#A1A1AA"
+    },
+    "text-tertiary": {
+      "type": "color",
+      "value": "#71717A"
+    },
+    "accent-gold": {
+      "type": "color",
+      "value": "#A855F7"
+    },
+    "accent-gold-dim": {
+      "type": "color",
+      "value": "#A855F74D"
+    },
+    "severity-high": {
+      "type": "color",
+      "value": "#F04438"
+    },
+    "severity-high-bg": {
+      "type": "color",
+      "value": "#2A1516"
+    },
+    "severity-medium": {
+      "type": "color",
+      "value": "#F59E0B"
+    },
+    "severity-medium-bg": {
+      "type": "color",
+      "value": "#2A2013"
+    },
+    "severity-low": {
+      "type": "color",
+      "value": "#71717A"
+    },
+    "severity-low-bg": {
+      "type": "color",
+      "value": "#27272A"
+    },
+    "effort-color": {
+      "type": "color",
+      "value": "#2DD4BF"
+    },
+    "effort-color-dim": {
+      "type": "color",
+      "value": "#0F3D3A"
+    },
+    "font-body": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "font-mono": {
+      "type": "string",
+      "value": "IBM Plex Mono"
+    },
+    "line-ref": {
+      "type": "color",
+      "value": "#C2A24D"
+    }
+  },
+  "fileToken": "63386ff3-2e1d-4a85-947c-8b6cb0d3223a"
+}
