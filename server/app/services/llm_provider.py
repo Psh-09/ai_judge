@@ -8,6 +8,7 @@ class Role(str, Enum):
     PROSECUTION = "prosecution"
     DEFENSE = "defense"
     JUDGMENT = "judgment"
+    REJUDGMENT = "rejudgment"
 
 
 class LLMProvider(ABC):

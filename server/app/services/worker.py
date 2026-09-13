@@ -7,7 +7,18 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.models import Case, CaseStatus, Charge, FailedStage, FailureReason, Judgment, Plea, Sentence, Verdict
+from app.models import (
+    Appeal,
+    Case,
+    CaseStatus,
+    Charge,
+    FailedStage,
+    FailureReason,
+    Judgment,
+    Plea,
+    Sentence,
+    Verdict,
+)
 from app.services.llm_provider import LLMProvider, Role
 from app.services.rule_catalog import RuleCatalog
 from app.services.validation import (
@@ -34,6 +45,7 @@ STAGE_PICKUP_MAP = {
     CaseStatus.QUEUED_PROSECUTION: (CaseStatus.PROSECUTING, "prosecution_attempts"),
     CaseStatus.QUEUED_DEFENSE: (CaseStatus.DEFENDING, "defense_attempts"),
     CaseStatus.QUEUED_JUDGMENT: (CaseStatus.JUDGING, "judgment_attempts"),
+    CaseStatus.QUEUED_REJUDGMENT: (CaseStatus.REJUDGING, "rejudgment_attempts"),
 }
 
 # 작업중 상태 -> 크래시 시 되돌릴 QUEUED_* 상태
@@ -41,6 +53,7 @@ STAGE_REAP_MAP = {
     CaseStatus.PROSECUTING: CaseStatus.QUEUED_PROSECUTION,
     CaseStatus.DEFENDING: CaseStatus.QUEUED_DEFENSE,
     CaseStatus.JUDGING: CaseStatus.QUEUED_JUDGMENT,
+    CaseStatus.REJUDGING: CaseStatus.QUEUED_REJUDGMENT,
 }
 
 STAGE_FAILED_STAGE_MAP = {
@@ -262,6 +275,45 @@ async def _run_judgment(session_factory, provider: LLMProvider, catalog: RuleCat
     return StageOutcome(success=True, judgment_result=result)
 
 
+async def _run_rejudgment(session_factory, provider: LLMProvider, catalog: RuleCatalog, case_id) -> StageOutcome:
+    async with session_factory() as session:
+        case = await session.get(Case, case_id)
+        charges = await _load_validated_charges(session, case_id)
+        code_hash, code, language, total_lines = (
+            case.code_hash,
+            case.code,
+            case.language,
+            case.total_lines,
+        )
+        appeal = (await session.execute(select(Appeal).where(Appeal.case_id == case_id))).scalar_one_or_none()
+        rebuttal = appeal.rebuttal if appeal is not None else None
+
+    # 항소 사유가 재심 프롬프트에 반드시 실려야 한다 — 이게 빠지면 항소 사유를 필수로 받은 이유가 사라진다.
+    request = {"code_hash": code_hash, "code": code, "language": language, "rebuttal": rebuttal}
+    try:
+        raw = await provider.generate(Role.REJUDGMENT, request)
+    except Exception as exc:  # noqa: BLE001
+        return StageOutcome(success=False, failure_reason=FailureReason.API_ERROR, detail=str(exc))
+
+    try:
+        result = validate_judgment(
+            raw, charges=charges, catalog=catalog, total_lines=total_lines, is_rejudgment=True
+        )
+    except JudgmentSchemaError as exc:
+        return StageOutcome(success=False, failure_reason=FailureReason.SCHEMA_INVALID, detail=str(exc))
+
+    if result.needs_retry:
+        return StageOutcome(
+            success=False,
+            failure_reason=FailureReason.SCHEMA_INVALID,
+            detail=(
+                f"missing verdicts/rebuttal_accepted; missing_charge_indices={result.missing_charge_indices}"
+            ),
+        )
+
+    return StageOutcome(success=True, judgment_result=result)
+
+
 async def _conditional_complete(session, case_id, working_status, worker_id: str, values: dict) -> bool:
     stmt = (
         update(Case)
@@ -288,8 +340,10 @@ async def process_stage(
             outcome = await _run_prosecution(session_factory, provider, catalog, case_id)
         elif queued_status == CaseStatus.QUEUED_DEFENSE:
             outcome = await _run_defense(session_factory, provider, case_id)
-        else:
+        elif queued_status == CaseStatus.QUEUED_JUDGMENT:
             outcome = await _run_judgment(session_factory, provider, catalog, case_id)
+        else:  # QUEUED_REJUDGMENT
+            outcome = await _run_rejudgment(session_factory, provider, catalog, case_id)
 
     try:
         async with session_factory() as session:
@@ -348,7 +402,7 @@ async def process_stage(
                                 )
                             )
 
-                    else:  # QUEUED_JUDGMENT
+                    elif queued_status == CaseStatus.QUEUED_JUDGMENT:
                         values["status"] = CaseStatus.SENTENCED
                         charge_rows = await _load_charge_rows(session, case_id)
                         judgment_result = outcome.judgment_result
@@ -391,10 +445,84 @@ async def process_stage(
                                 )
                             )
 
+                    else:  # QUEUED_REJUDGMENT
+                        values["status"] = CaseStatus.SENTENCED
+                        values["revision"] = 1
+                        charge_rows = await _load_charge_rows(session, case_id)
+                        judgment_result = outcome.judgment_result
+
+                        new_judgment = Judgment(
+                            case_id=case_id,
+                            revision=1,
+                            opinion=judgment_result.opinion,
+                            rebuttal_accepted=judgment_result.rebuttal_accepted,
+                            is_overturned=False,
+                            precedent_verdict_ids=[],
+                        )
+                        session.add(new_judgment)
+                        await session.flush()  # new_judgment.id 확보
+
+                        for verdict in judgment_result.verdicts:
+                            session.add(
+                                Verdict(
+                                    judgment_id=new_judgment.id,
+                                    charge_id=charge_rows[verdict.charge_index].id,
+                                    verdict=verdict.verdict,
+                                    final_severity=verdict.final_severity,
+                                    reasoning=verdict.reasoning,
+                                )
+                            )
+                        for sentence in judgment_result.sentences:
+                            session.add(
+                                Sentence(
+                                    judgment_id=new_judgment.id,
+                                    charge_id=charge_rows[sentence.charge_index].id,
+                                    task=sentence.task,
+                                    target_start=sentence.target_start,
+                                    target_end=sentence.target_end,
+                                    effort=sentence.effort,
+                                    effort_adjusted=sentence.effort_adjusted,
+                                    effort_reason=sentence.effort_reason,
+                                    effort_clamped=sentence.effort_clamped,
+                                    advisory=sentence.advisory,
+                                    rationale=sentence.rationale,
+                                )
+                            )
+
+                        # 판례 처리 (plan.md §7): 원심(revision=0)과 판정이 하나라도 달라지면
+                        # 원심 judgment를 is_overturned=true로 전환한다. 전부 같으면 그대로 둔다.
+                        original_judgment = (
+                            await session.execute(
+                                select(Judgment).where(
+                                    Judgment.case_id == case_id, Judgment.revision == 0
+                                )
+                            )
+                        ).scalar_one()
+                        original_verdicts = (
+                            await session.execute(
+                                select(Verdict).where(Verdict.judgment_id == original_judgment.id)
+                            )
+                        ).scalars().all()
+                        original_verdict_by_charge = {v.charge_id: v.verdict for v in original_verdicts}
+                        changed = any(
+                            original_verdict_by_charge.get(charge_rows[v.charge_index].id) != v.verdict
+                            for v in judgment_result.verdicts
+                        )
+                        if changed:
+                            original_judgment.is_overturned = True
+
                 elif attempts >= MAX_STAGE_ATTEMPTS:
-                    values["status"] = CaseStatus.FAILED
-                    values["failed_stage"] = STAGE_FAILED_STAGE_MAP[working_status]
-                    values["failure_reason"] = outcome.failure_reason
+                    if queued_status == CaseStatus.QUEUED_REJUDGMENT:
+                        # 재심 실패는 FAILED가 아니라 원심 그대로 유지 (plan.md §4)
+                        values["status"] = CaseStatus.SENTENCED
+                        values["rejudgment_failed_at"] = datetime.now(timezone.utc)
+                        values["rejudgment_failed_reason"] = (
+                            outcome.detail or (outcome.failure_reason.value if outcome.failure_reason else "unknown")
+                        )
+                    else:
+                        values["status"] = CaseStatus.FAILED
+                        values["failed_stage"] = STAGE_FAILED_STAGE_MAP[working_status]
+                        values["failure_reason"] = outcome.failure_reason
                 else:
                     values["status"] = queued_status  # 재시도 대기열로 복귀
 

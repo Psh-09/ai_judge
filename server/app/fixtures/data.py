@@ -171,10 +171,97 @@ _JUDGMENT_RESPONSE = {
     ],
 }
 
+# 항소 데모용: 원심에서 기각됐던 NAMING-002(charge_index 3)가 재심에서 채택된다.
+# 나머지 charge는 원심과 동일한 판정을 유지해, "일부만 뒤집힌" 현실적인 재심을 보여준다.
+_REJUDGMENT_RESPONSE = {
+    "opinion": (
+        "항소 사유를 검토한 결과, 축약 변수명 지적은 재심에서 다시 인정한다. "
+        "나머지 지적에 대한 판단은 원심과 동일하게 유지한다."
+    ),
+    "rebuttal_accepted": True,
+    "verdicts": [
+        {
+            "charge_index": 0,
+            "verdict": "SUSTAINED",
+            "final_severity": "HIGH",
+            "reasoning": (
+                "사용자 입력이 검증 없이 쿼리에 결합된다. 변론의 '내부 스크립트' 주장은 "
+                "입력 경로가 외부에 열려 있어 성립하지 않는다."
+            ),
+        },
+        {
+            "charge_index": 1,
+            "verdict": "SUSTAINED",
+            "final_severity": "MEDIUM",
+            "reasoning": "단일 함수가 파싱·검증·저장을 함께 처리한다.",
+        },
+        {
+            "charge_index": 2,
+            "verdict": "REDUCED",
+            "final_severity": "MEDIUM",
+            "reasoning": "except 범위가 넓은 것은 사실이나, 로깅이 포함되어 실패가 은폐되지는 않는다.",
+        },
+        {
+            "charge_index": 3,
+            "verdict": "SUSTAINED",
+            "final_severity": "LOW",
+            "reasoning": (
+                "항소인은 스코프가 짧다고 주장하나, 같은 축약명이 여러 함수에서 재사용되며 "
+                "역할을 알 수 없게 만든다. 원심 기각을 재심에서 채택으로 변경한다."
+            ),
+        },
+        {
+            "charge_index": 4,
+            "verdict": "DISMISSED",
+            "final_severity": None,
+            "reasoning": "상수의 의미가 인접 주석으로 설명되어 있어 가독성 저해가 없다.",
+        },
+    ],
+    "sentences": [
+        {
+            "charge_index": 0,
+            "task": "42번 줄 쿼리를 파라미터 바인딩으로 교체",
+            "target_lines": [42, 42],
+            "effort": "SMALL",
+            "effort_adjusted": False,
+            "effort_reason": None,
+            "rationale": "파라미터 바인딩으로 교체하면 SQL 인젝션 경로가 닫힌다.",
+        },
+        {
+            "charge_index": 1,
+            "task": "parse_and_save()를 파싱·검증·저장 세 함수로 분리",
+            "target_lines": [88, 140],
+            "effort": "LARGE",
+            "effort_adjusted": False,
+            "effort_reason": None,
+            "rationale": "책임을 분리하면 각 단계를 독립적으로 테스트할 수 있다.",
+        },
+        {
+            "charge_index": 2,
+            "task": "except 절을 예상 예외 타입으로 좁힘",
+            "target_lines": [155, 158],
+            "effort": "MEDIUM",
+            "effort_adjusted": False,
+            "effort_reason": None,
+            "rationale": "예상 가능한 예외만 잡으면 나머지 오류가 은폐되지 않는다.",
+        },
+        {
+            "charge_index": 3,
+            "task": "nm 변수명을 user_display_name 등 의미 있는 이름으로 변경",
+            "target_lines": [17, 17],
+            "effort": "SMALL",
+            "effort_adjusted": False,
+            "effort_reason": None,
+            "rationale": "의미 있는 이름으로 바꾸면 재사용 시 역할을 다시 추적할 필요가 없다.",
+        },
+    ],
+}
+
 FIXTURES: dict[str, dict[str, dict]] = {
     SAMPLE_CODE_HASH: {
         "prosecution": _PROSECUTION_RESPONSE,
         "defense": _DEFENSE_RESPONSE,
         "judgment": _JUDGMENT_RESPONSE,
+        "rejudgment": _REJUDGMENT_RESPONSE,
     }
 }
