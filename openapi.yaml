@@ -29,6 +29,7 @@ paths:
     post:
       tags: [auth]
       summary: 회원가입
+      operationId: registerUser
       security: []
       requestBody:
         required: true
@@ -61,6 +62,7 @@ paths:
     post:
       tags: [auth]
       summary: 로그인 (httpOnly 쿠키 발급)
+      operationId: loginUser
       description: >
         인증 성공 시 access_token/refresh_token을 httpOnly + Secure + SameSite=Lax
         쿠키로 내려준다. 토큰은 응답 본문에 포함하지 않는다(§인증 방식 참고).
@@ -102,6 +104,7 @@ paths:
     post:
       tags: [auth]
       summary: 액세스 토큰 재발급
+      operationId: refreshToken
       description: 요청의 refresh_token 쿠키를 읽어 새 access_token 쿠키를 내려준다. 별도 요청 본문이 없다.
       security:
         - refreshCookieAuth: []
@@ -127,6 +130,7 @@ paths:
     get:
       tags: [rules]
       summary: 활성 법전 조항 목록
+      operationId: listRules
       description: active=true인 조항만 반환한다.
       responses:
         "200":
@@ -162,6 +166,7 @@ paths:
     post:
       tags: [cases]
       summary: 사건 제출 (붙여넣기 또는 GitHub 링크)
+      operationId: createCase
       description: >
         `code`+`language`(붙여넣기) 또는 `repo_url`(GitHub 링크) 중 정확히 하나를
         받는다. 둘 다 없거나 둘 다 있으면 400 VALIDATION_ERROR.
@@ -337,6 +342,8 @@ paths:
     get:
       tags: [cases]
       summary: 본인 사건 목록 (전과 기록)
+      operationId: listCases
+      description: 요청자가 소유한 사건만 최신순으로 페이지네이션해 반환한다.
       parameters:
         - name: page
           in: query
@@ -358,6 +365,8 @@ paths:
     get:
       tags: [cases]
       summary: 사건 상세(기소장+변론+판결+항소 정보 전체)
+      operationId: getCase
+      description: 코드 스냅샷, 기소장, 변론, 판결(총평/개별 판정/형량), 항소 정보를 한 번에 반환한다.
       responses:
         "200":
           description: 사건 상세
@@ -377,6 +386,8 @@ paths:
     get:
       tags: [cases]
       summary: 진행 상태 폴링용 경량 응답
+      operationId: getCaseProgress
+      description: status/revision/appeal_used만 담은 경량 응답으로, 클라이언트가 2초 간격으로 폴링하는 용도다.
       responses:
         "200":
           description: 현재 상태
@@ -397,6 +408,8 @@ paths:
     post:
       tags: [cases]
       summary: 항소 접수 (1회 한정)
+      operationId: appealCase
+      description: SENTENCED 상태이고 appeal_used=false인 사건만 접수 가능하며, 접수 즉시 appeal_used=true로 확정된다.
       requestBody:
         required: true
         content:
@@ -452,6 +465,7 @@ paths:
     patch:
       tags: [sentences]
       summary: 형량 체크리스트 항목 완료 토글
+      operationId: toggleSentence
       description: 사건 status와 무관하게 언제든 토글 가능하다.
       requestBody:
         required: true
