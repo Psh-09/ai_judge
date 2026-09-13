@@ -1,0 +1,301 @@
+# Code Court — 법전 (Rule Catalog)
+#
+# 검사는 이 목록에 있는 rule_id로만 기소할 수 있다.
+# 자유 서술로 새 죄목을 만들 수 없으며, 여기 없는 rule_id는 서버가 폐기한다.
+#
+# 조항 선정 기준 (셋 모두 만족해야 수록)
+#   1. 라인 지목 가능 — 위반 위치를 (시작줄, 끝줄)로 특정할 수 있어야 한다.
+#      기소 형식이 라인 범위를 요구하므로, 지목할 수 없는 지적은 애초에 표현되지 않는다.
+#   2. 판정 객관성  — 프로젝트 규약에 따라 옳고 그름이 갈리지 않아야 한다.
+#   3. 실행 불필요  — 코드를 실행하지 않고 정적으로 판정 가능해야 한다.
+#
+# 조항의 출처: 널리 통용되는 개발 관례에서 후보를 모은 뒤 위 세 기준으로 걸렀다.
+# 특정 표준 문서의 조항을 옮긴 것이 아니므로 표준 번호를 인용하지 않는다.
+# 조항 자체의 타당성은 기각률 지표로 사후 검증하고, 과잉으로 확인되면 active: false로 내린다.
+#
+# 필드
+#   rule_id          카테고리-번호. DB에는 이 값만 저장되고 조항명은 여기서 조회한다.
+#   description      검사 프롬프트에 그대로 주입된다. "무엇이 위반이고 무엇은 아닌지"를 함께 쓴다.
+#   default_severity 검사가 ±1단계까지 조정 가능. 조정 시 사유 필수.
+#   typical_effort   판사가 ±1단계까지 조정 가능. 조정 시 사유 필수.
+#   languages        빈 배열이면 전 언어 공통. 언어 문법·API를 알아야 판정되는 조항만 지정한다.
+#   active           false면 새 기소에 쓰이지 않는다. 과거 판결의 조항명 조회를 위해 삭제하지 않는다.
+
+version: 1
+
+categories:
+  SECURITY:  외부 입력을 신뢰하는 지점
+  ERROR:     실패를 처리하거나 은폐하는 방식
+  STRUCTURE: 책임 분리, 길이, 중첩
+  NAMING:    식별자가 의미를 드러내는가
+  PERF:      정적으로 확인 가능한 비효율
+  STYLE:     가독성
+
+rules:
+
+  # ── SECURITY ────────────────────────────────────────────────
+
+  - rule_id: SEC-001
+    category: SECURITY
+    title: 하드코딩된 자격증명
+    description: >
+      API 키, 비밀번호, 토큰, 접속 문자열이 소스에 문자열 리터럴로 박혀 있는 경우.
+      환경변수나 외부 설정에서 읽어오는 코드, 명백한 예시·플레이스홀더 값
+      ("your-api-key-here", "xxx"), 테스트용 더미 값은 위반이 아니다.
+    default_severity: HIGH
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  - rule_id: SEC-002
+    category: SECURITY
+    title: 검증 없는 외부 입력 사용
+    description: >
+      요청 파라미터, 폼 데이터, 헤더, 파일 내용 등 외부에서 들어온 값을
+      검증이나 변환 없이 그대로 사용하는 경우. 사용 전에 타입 검사, 범위 검사,
+      화이트리스트 대조, 이스케이프 중 하나라도 수행하면 위반이 아니다.
+      함수 시그니처만으로 외부 입력인지 판단할 수 없으면 기소하지 않는다.
+    default_severity: HIGH
+    typical_effort: MEDIUM
+    languages: []
+    active: true
+
+  - rule_id: SEC-003
+    category: SECURITY
+    title: SQL 문자열 결합
+    description: >
+      사용자 입력이나 변수를 문자열 연결, 포맷 문자열, 템플릿 리터럴로 이어 붙여
+      SQL 쿼리를 만드는 경우. 파라미터 바인딩(플레이스홀더 + 인자 전달)을 쓰거나,
+      결합되는 값이 코드 내 상수뿐이면 위반이 아니다.
+    default_severity: HIGH
+    typical_effort: SMALL
+    languages: [python, javascript, typescript, java]
+    active: true
+
+  - rule_id: SEC-004
+    category: SECURITY
+    title: 동적 코드 실행
+    description: >
+      eval, exec, Function 생성자, 셸 명령 문자열 실행 등에 변수가 포함된 문자열을
+      넘기는 경우. 인자가 코드 내 고정 리터럴이면 위반이 아니다.
+      동적 실행 자체가 아니라 외부 값이 흘러드는 것이 기소 사유다.
+    default_severity: HIGH
+    typical_effort: MEDIUM
+    languages: [python, javascript, typescript]
+    active: true
+
+  # ── ERROR ───────────────────────────────────────────────────
+
+  - rule_id: ERR-001
+    category: ERROR
+    title: 예외 무시
+    description: >
+      예외를 잡은 뒤 본문이 비어 있거나 pass/continue만 있어서, 실패가 아무 흔적 없이
+      넘어가는 경우. 로깅, 기본값 반환, 재시도, 사용자 알림 중 하나라도 수행하면
+      위반이 아니다. 주석으로 의도를 설명한 것만으로는 처리로 보지 않는다.
+    default_severity: HIGH
+    typical_effort: SMALL
+    languages: [python, javascript, typescript, java]
+    active: true
+
+  - rule_id: ERR-002
+    category: ERROR
+    title: 광범위 예외 처리
+    description: >
+      최상위 예외 타입을 통째로 잡아 예상하지 못한 오류까지 함께 삼키는 경우.
+      잡은 뒤 재발생시키거나, 진입점·워커 루프처럼 모든 오류를 받아 로깅하는 것이
+      역할인 위치에서는 위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: MEDIUM
+    languages: [python, javascript, typescript, java]
+    active: true
+
+  - rule_id: ERR-003
+    category: ERROR
+    title: 실패 후 로깅 없이 진행
+    description: >
+      함수 호출이 실패했거나 값이 비어 있음을 확인했는데, 그 사실을 기록하지 않고
+      후속 로직을 이어가는 경우. 호출자에게 오류를 반환하거나 예외를 올리면
+      위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  # ── STRUCTURE ───────────────────────────────────────────────
+
+  - rule_id: STRUCT-001
+    category: STRUCTURE
+    title: 함수 길이 과다
+    description: >
+      단일 함수의 본문이 40줄을 넘는 경우. 빈 줄과 주석은 세지 않는다.
+      데이터 테이블 정의나 상수 나열처럼 분기 없이 선언만 이어지는 본문은
+      위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: LARGE
+    languages: []
+    active: true
+
+  - rule_id: STRUCT-002
+    category: STRUCTURE
+    title: 중첩 깊이 과다
+    description: >
+      조건문과 반복문의 중첩이 4단을 넘는 경우. 함수 정의나 클래스 본문에 의한
+      들여쓰기는 깊이에 포함하지 않는다.
+    default_severity: MEDIUM
+    typical_effort: MEDIUM
+    languages: []
+    active: true
+
+  - rule_id: STRUCT-003
+    category: STRUCTURE
+    title: 중복 코드 블록
+    description: >
+      5줄 이상이 거의 동일하게 두 곳 이상에서 반복되는 경우. 변수명만 다르고
+      구조가 같은 경우도 포함한다. 한두 줄짜리 관용 표현이나, 의도적으로
+      분리해 둔 설정·상수 블록은 위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: MEDIUM
+    languages: []
+    active: true
+
+  - rule_id: STRUCT-004
+    category: STRUCTURE
+    title: 단일 함수의 다중 책임
+    description: >
+      하나의 함수가 서로 다른 층위의 일을 함께 수행하는 경우. 예를 들어
+      입력 파싱, 검증, 영속화, 응답 생성 중 셋 이상이 한 함수에 들어 있는 경우.
+      각 단계를 별도 함수로 호출만 하는 조립 함수는 위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: LARGE
+    languages: []
+    active: true
+
+  - rule_id: STRUCT-005
+    category: STRUCTURE
+    title: 전역 상태 변경
+    description: >
+      함수 내부에서 모듈 수준 변수나 전역 객체의 값을 변경하는 경우.
+      읽기만 하는 경우, 상수 참조, 모듈 초기화 시점의 한 번뿐인 설정은
+      위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: MEDIUM
+    languages: [python, javascript, typescript]
+    active: true
+
+  # ── NAMING ──────────────────────────────────────────────────
+
+  - rule_id: NAMING-001
+    category: NAMING
+    title: 의미 없는 식별자
+    description: >
+      data, temp, result, obj, value2처럼 무엇을 담는지 드러내지 않는 이름을
+      사용하는 경우. 해당 이름이 실제로 그 의미를 정확히 가리키는 경우
+      (예: HTTP 응답 본문을 담은 data)는 위반이 아니다.
+    default_severity: LOW
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  - rule_id: NAMING-002
+    category: NAMING
+    title: 축약 변수명
+    description: >
+      한두 글자로 축약되어 역할을 알 수 없는 이름. 반복문 인덱스 i, j,
+      좌표 x, y, 관용적으로 굳은 축약(id, db, url)은 위반이 아니다.
+      스코프가 3줄 이내로 짧은 지역 변수도 기소 대상에서 제외한다.
+    default_severity: LOW
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  - rule_id: NAMING-003
+    category: NAMING
+    title: 이름과 동작 불일치
+    description: >
+      함수명이 알리는 동작과 실제 본문이 어긋나는 경우. get으로 시작하는데
+      값을 변경하거나, validate인데 저장까지 수행하는 경우 등.
+      부수 효과가 이름에 드러나 있으면 위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  # ── PERF ────────────────────────────────────────────────────
+
+  - rule_id: PERF-001
+    category: PERF
+    title: 반복문 내 반복 연산
+    description: >
+      반복문 안에서 매 회 같은 결과를 내는 연산을 수행하는 경우. 상수 계산,
+      불변 값 조회, 정규식 컴파일 등이 루프 밖으로 나갈 수 있는 경우가 해당한다.
+      매 회 결과가 달라지는 연산은 위반이 아니다.
+    default_severity: MEDIUM
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  - rule_id: PERF-002
+    category: PERF
+    title: 불필요한 전체 순회
+    description: >
+      존재 여부 확인이나 단건 조회를 위해 컬렉션 전체를 순회하는 경우.
+      조기 반환이나 인덱스·해시 조회로 대체 가능한 경우에 한한다.
+      모든 원소를 실제로 처리해야 하는 순회는 위반이 아니다.
+    default_severity: LOW
+    typical_effort: MEDIUM
+    languages: []
+    active: true
+
+  # ── STYLE ───────────────────────────────────────────────────
+
+  - rule_id: STYLE-001
+    category: STYLE
+    title: 매직 넘버
+    description: >
+      의미를 알 수 없는 숫자 리터럴이 로직에 직접 등장하는 경우.
+      0, 1, -1, 2 같은 관용적 값과, 인접 주석이나 변수명으로 의미가 설명된
+      경우는 위반이 아니다.
+    default_severity: LOW
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  - rule_id: STYLE-002
+    category: STYLE
+    title: 주석 없는 복잡한 로직
+    description: >
+      비트 연산, 복잡한 정규식, 특수한 수식처럼 코드만으로 의도를 읽기 어려운
+      구간에 설명이 없는 경우. 이름만으로 의도가 드러나는 코드에는 적용하지 않으며,
+      주석의 양이나 문서화 관례를 이유로 기소하지 않는다.
+    default_severity: LOW
+    typical_effort: SMALL
+    languages: []
+    active: true
+
+  - rule_id: STYLE-003
+    category: STYLE
+    title: 사용되지 않는 변수·임포트
+    description: >
+      선언하거나 가져왔지만 파일 내에서 한 번도 참조되지 않는 식별자.
+      부수 효과를 위한 임포트나, 언패킹에서 의도적으로 버리는 이름(_)은
+      위반이 아니다.
+    default_severity: LOW
+    typical_effort: SMALL
+    languages: [python, javascript, typescript]
+    active: true
+
+# 법전에 넣지 않은 후보와 탈락 사유 — 법전 열람 화면의 "이 서비스가 보지 않는 것" 근거
+excluded_candidates:
+  - candidate: 설계에 확장성이 없다
+    reason: 위반 위치를 라인으로 지목할 수 없어 기소 형식으로 표현되지 않는다
+  - candidate: 들여쓰기·줄바꿈이 일관되지 않다
+    reason: 포매터가 자동 처리하는 항목으로, 사람이 판단할 가치가 없다
+  - candidate: 이 반복문이 느리다
+    reason: 코드를 실행하지 않으므로 실측 근거를 댈 수 없다
+  - candidate: 주석이 부족하다
+    reason: 적정량이 팀 규약에 따라 갈려 판정이 객관적이지 않다
+  - candidate: 파일 구조가 관례에 맞지 않다
+    reason: 단일 파일만 심사하므로 판정 자체가 불가능하다
+  - candidate: 테스트가 없다
+    reason: 제출 대상 파일 밖의 사실이라 지목할 라인이 없다
