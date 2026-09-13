@@ -1,0 +1,39 @@
+from enum import Enum
+
+
+class CaseStatus(str, Enum):
+    QUEUED_PROSECUTION = "QUEUED_PROSECUTION"
+    PROSECUTING = "PROSECUTING"
+    QUEUED_DEFENSE = "QUEUED_DEFENSE"
+    DEFENDING = "DEFENDING"
+    QUEUED_JUDGMENT = "QUEUED_JUDGMENT"
+    JUDGING = "JUDGING"
+    SENTENCED = "SENTENCED"
+    DISMISSED = "DISMISSED"
+    QUEUED_REJUDGMENT = "QUEUED_REJUDGMENT"
+    REJUDGING = "REJUDGING"
+    FAILED = "FAILED"
+
+
+class FailedStage(str, Enum):
+    PROSECUTION = "PROSECUTION"
+    DEFENSE = "DEFENSE"
+    JUDGMENT = "JUDGMENT"
+
+
+class FailureReason(str, Enum):
+    SCHEMA_INVALID = "SCHEMA_INVALID"
+    TIMEOUT = "TIMEOUT"
+    API_ERROR = "API_ERROR"
+
+
+class PleaValue(str, Enum):
+    ADMIT = "ADMIT"
+    DENY = "DENY"
+    NO_RESPONSE = "NO_RESPONSE"
+
+
+class VerdictValue(str, Enum):
+    SUSTAINED = "SUSTAINED"
+    REDUCED = "REDUCED"
+    DISMISSED = "DISMISSED"
