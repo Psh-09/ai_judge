@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from app.config import get_settings
 from app.services.llm_provider import get_llm_provider
 from app.services.rule_catalog import RuleCatalog
-from app.services.worker import run_worker_once
+from app.services.worker import run_worker_loop
 
 logger = logging.getLogger("worker")
 
@@ -17,6 +17,7 @@ POLL_INTERVAL_SECONDS = 2.0
 async def main() -> None:
     logging.basicConfig(level=logging.INFO)
     settings = get_settings()
+    settings.validate_for_production()
 
     engine = create_async_engine(settings.database_url)
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
@@ -26,10 +27,7 @@ async def main() -> None:
 
     logger.info("worker started: %s (provider=%s)", worker_id, settings.llm_provider)
     try:
-        while True:
-            worked = await run_worker_once(session_factory, provider, catalog, worker_id)
-            if not worked:
-                await asyncio.sleep(POLL_INTERVAL_SECONDS)
+        await run_worker_loop(session_factory, provider, catalog, worker_id, POLL_INTERVAL_SECONDS)
     finally:
         await engine.dispose()
 

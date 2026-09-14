@@ -27,6 +27,7 @@ from app.services.worker import (
     pick_up_next_case,
     process_stage,
     reap_stale_locks,
+    run_worker_loop,
     run_worker_once,
 )
 
@@ -341,3 +342,30 @@ async def test_prompt_version_recorded_even_on_retryable_failure(engine, catalog
     async with session_factory() as session:
         case = await session.get(Case, case_id)
         assert case.prompt_version == "fixture-v1"
+
+
+async def test_run_worker_loop_processes_case_and_stops_cleanly_on_cancel(engine, catalog):
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+    case_id = await _seed_case(
+        session_factory, SAMPLE_CODE, SAMPLE_LANGUAGE, SAMPLE_CODE_HASH, len(SAMPLE_CODE.split("\n"))
+    )
+    provider = FixtureLLMProvider()
+
+    task = asyncio.create_task(
+        run_worker_loop(session_factory, provider, catalog, "loop-worker", poll_interval=0.05)
+    )
+    try:
+        for _ in range(100):
+            async with session_factory() as session:
+                case = await session.get(Case, case_id)
+                if case.status == CaseStatus.SENTENCED:
+                    break
+            await asyncio.sleep(0.02)
+        else:
+            pytest.fail("worker loop did not reach SENTENCED in time")
+    finally:
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    assert task.cancelled()

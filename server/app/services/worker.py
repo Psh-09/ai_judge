@@ -575,3 +575,20 @@ async def run_worker_once(
     case_id, queued_status = picked
     await process_stage(session_factory, provider, catalog, case_id, queued_status, worker_id, heartbeat_interval)
     return True
+
+
+async def run_worker_loop(
+    session_factory,
+    provider: LLMProvider,
+    catalog: RuleCatalog,
+    worker_id: str,
+    poll_interval: float = 2.0,
+) -> None:
+    """run_worker_once를 무한 반복한다. 독립 프로세스(worker_main.py)와 인앱 폴백(main.py) 둘 다 이 함수를 쓴다.
+
+    태스크 취소(asyncio.CancelledError)로 중단시키는 것을 전제로 하며, 이 함수 자체는 취소를 삼키지 않는다.
+    """
+    while True:
+        worked = await run_worker_once(session_factory, provider, catalog, worker_id)
+        if not worked:
+            await asyncio.sleep(poll_interval)
