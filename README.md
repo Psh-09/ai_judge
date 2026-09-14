@@ -58,7 +58,7 @@
 | 전과 기록            | 구현됨 | `GET /cases` 목록, `GET /cases/rule-frequency` 반복 조항 랭킹                                 |
 | 항소·재심            | 구현됨 | 항소 접수, 재심(판사만 재실행), 판례 뒤집힘(`is_overturned`) 처리                             |
 | 판례 조회·주입       | 구현됨 | `(rule_id, language)` 조회, 판사/재심 프롬프트에 주입, `judgments.precedent_verdict_ids` 기록 |
-| GitHub 링크 제출     | 미구현 | `docs/plans/develop_plan.md` M4 예정. 현재는 붙여넣기 모드만 지원                             |
+| GitHub 링크 제출     | 구현됨 | blob URL 파싱, 커밋 SHA 고정, 24시간 60회 fetch 제한(사건 생성 카운트와 별개)                 |
 | 실제 LLM provider    | 미구현 | fixture 모드만 동작(`app/fixtures/data.py`). `RealLLMProvider`는 `NotImplementedError` 스텁   |
 | 프론트엔드           | 미구현 | Next.js 클라이언트 코드 없음. UI는 `docs/design.md`와 `docs/mockups/`의 목업까지만 존재       |
 
@@ -130,5 +130,5 @@ curl -b cookies.txt http://127.0.0.1:8000/api/v1/cases/<case_id>
 ```bash
 cd server
 source .venv/bin/activate
-pytest        # 158 passed
+pytest        # 192 passed
 ```

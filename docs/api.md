@@ -19,7 +19,7 @@
 | POST   | `/cases/{case_id}/appeal`   | 항소 접수(1회 한정)                        |
 | PATCH  | `/sentences/{sentence_id}`  | 형량 체크리스트 항목 완료 토글             |
 
-¹ 현재 붙여넣기 모드만 구현됨. GitHub 링크 제출은 `docs/plans/develop_plan.md` M4 예정.
+¹ `code`+`language`(붙여넣기) 또는 `repo_url`(GitHub 링크) 중 정확히 하나만 받는다 — 두 모드는 상호배타적이며, 둘 다 없거나 둘 다 있으면 400 `VALIDATION_ERROR`.
 
 ## 사건 라이프사이클 흐름
 
