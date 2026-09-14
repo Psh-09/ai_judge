@@ -280,3 +280,64 @@ async def test_heartbeat_refreshes_locked_at_while_stage_is_running(engine, cata
     await task
 
     assert locked_at_mid_flight > locked_at_after_pickup
+
+
+class _SpyProvider(LLMProvider):
+    """실제 fixture 응답은 그대로 위임하되, 각 역할에 전달된 request를 기록한다."""
+
+    prompt_version = "fixture-v1"
+
+    def __init__(self):
+        self._base = FixtureLLMProvider()
+        self.recorded_requests: dict[Role, list[dict]] = {}
+
+    async def generate(self, role: Role, request: dict) -> dict:
+        self.recorded_requests.setdefault(role, []).append(request)
+        return await self._base.generate(role, request)
+
+
+async def test_judgment_request_includes_precedent_summaries_and_persists_verdict_ids(engine, catalog):
+    from tests.test_precedent import _make_user, _seed_precedent
+
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+
+    async with session_factory() as session:
+        precedent_user_id = await _make_user(session)
+        _, precedent_verdict_id = await _seed_precedent(
+            session, user_id=precedent_user_id, rule_id="SEC-003", language="python"
+        )
+        await session.commit()
+
+    case_id = await _seed_case(session_factory, SAMPLE_CODE, SAMPLE_LANGUAGE, SAMPLE_CODE_HASH, len(SAMPLE_CODE.split("\n")))
+    provider = _SpyProvider()
+    for _ in range(3):  # 검사 -> 변호 -> 판사
+        assert await run_worker_once(session_factory, provider, catalog, "worker-1")
+
+    judgment_requests = provider.recorded_requests[Role.JUDGMENT]
+    assert len(judgment_requests) == 1
+    precedents_sent = judgment_requests[0]["precedents"]
+    assert any(p["rule_id"] == "SEC-003" for p in precedents_sent)
+    sec_entry = next(p for p in precedents_sent if p["rule_id"] == "SEC-003")
+    assert sec_entry["verdict"] == "SUSTAINED"
+    assert sec_entry["reasoning"] == "판례 사유"
+
+    async with session_factory() as session:
+        case = await session.get(Case, case_id)
+        assert case.prompt_version == "fixture-v1"
+        judgment = (
+            await session.execute(select(Judgment).where(Judgment.case_id == case_id))
+        ).scalar_one()
+        assert judgment.precedent_verdict_ids == [precedent_verdict_id]
+
+
+async def test_prompt_version_recorded_even_on_retryable_failure(engine, catalog):
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+    case_id = await _seed_case(session_factory, "x = 1\n", "python", "no-such-hash", 1)
+    provider = _AlwaysFailsProvider()
+    provider.prompt_version = "fixture-v1"
+
+    assert await run_worker_once(session_factory, provider, catalog, "worker-1") is True
+
+    async with session_factory() as session:
+        case = await session.get(Case, case_id)
+        assert case.prompt_version == "fixture-v1"

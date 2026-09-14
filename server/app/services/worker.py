@@ -20,6 +20,7 @@ from app.models import (
     Verdict,
 )
 from app.services.llm_provider import LLMProvider, Role
+from app.services.precedent import fetch_precedents, precedent_summaries_for_prompt
 from app.services.rule_catalog import RuleCatalog
 from app.services.validation import (
     DefenseResult,
@@ -71,6 +72,7 @@ class StageOutcome:
     prosecution_result: ProsecutionResult | None = None
     defense_result: DefenseResult | None = None
     judgment_result: JudgmentResult | None = None
+    precedent_verdict_ids: list[int] | None = None
 
 
 class _StaleCommit(Exception):
@@ -251,8 +253,14 @@ async def _run_judgment(session_factory, provider: LLMProvider, catalog: RuleCat
             case.language,
             case.total_lines,
         )
+        precedents = await fetch_precedents(session, case_id=case_id, language=language, charges=charges)
 
-    request = {"code_hash": code_hash, "code": code, "language": language}
+    request = {
+        "code_hash": code_hash,
+        "code": code,
+        "language": language,
+        "precedents": precedent_summaries_for_prompt(precedents),
+    }
     try:
         raw = await provider.generate(Role.JUDGMENT, request)
     except Exception as exc:  # noqa: BLE001
@@ -272,7 +280,9 @@ async def _run_judgment(session_factory, provider: LLMProvider, catalog: RuleCat
             detail=f"missing verdicts for charge_index {result.missing_charge_indices}",
         )
 
-    return StageOutcome(success=True, judgment_result=result)
+    return StageOutcome(
+        success=True, judgment_result=result, precedent_verdict_ids=precedents.verdict_ids
+    )
 
 
 async def _run_rejudgment(session_factory, provider: LLMProvider, catalog: RuleCatalog, case_id) -> StageOutcome:
@@ -287,9 +297,17 @@ async def _run_rejudgment(session_factory, provider: LLMProvider, catalog: RuleC
         )
         appeal = (await session.execute(select(Appeal).where(Appeal.case_id == case_id))).scalar_one_or_none()
         rebuttal = appeal.rebuttal if appeal is not None else None
+        # plan.md §4: 재심은 검사·변호 결과를 재사용하지만 판례는 새로 조회한다.
+        precedents = await fetch_precedents(session, case_id=case_id, language=language, charges=charges)
 
     # 항소 사유가 재심 프롬프트에 반드시 실려야 한다 — 이게 빠지면 항소 사유를 필수로 받은 이유가 사라진다.
-    request = {"code_hash": code_hash, "code": code, "language": language, "rebuttal": rebuttal}
+    request = {
+        "code_hash": code_hash,
+        "code": code,
+        "language": language,
+        "rebuttal": rebuttal,
+        "precedents": precedent_summaries_for_prompt(precedents),
+    }
     try:
         raw = await provider.generate(Role.REJUDGMENT, request)
     except Exception as exc:  # noqa: BLE001
@@ -311,7 +329,9 @@ async def _run_rejudgment(session_factory, provider: LLMProvider, catalog: RuleC
             ),
         )
 
-    return StageOutcome(success=True, judgment_result=result)
+    return StageOutcome(
+        success=True, judgment_result=result, precedent_verdict_ids=precedents.verdict_ids
+    )
 
 
 async def _conditional_complete(session, case_id, working_status, worker_id: str, values: dict) -> bool:
@@ -364,7 +384,11 @@ async def process_stage(
                         outcome.detail,
                     )
 
-                values: dict = {"locked_at": None, "locked_by": None}
+                values: dict = {
+                    "locked_at": None,
+                    "locked_by": None,
+                    "prompt_version": provider.prompt_version,
+                }
 
                 if outcome.success:
                     if queued_status == CaseStatus.QUEUED_PROSECUTION:
@@ -413,7 +437,7 @@ async def process_stage(
                             opinion=judgment_result.opinion,
                             rebuttal_accepted=judgment_result.rebuttal_accepted,
                             is_overturned=False,
-                            precedent_verdict_ids=[],
+                            precedent_verdict_ids=outcome.precedent_verdict_ids or [],
                         )
                         session.add(judgment)
                         await session.flush()  # judgment.id 확보
@@ -457,7 +481,7 @@ async def process_stage(
                             opinion=judgment_result.opinion,
                             rebuttal_accepted=judgment_result.rebuttal_accepted,
                             is_overturned=False,
-                            precedent_verdict_ids=[],
+                            precedent_verdict_ids=outcome.precedent_verdict_ids or [],
                         )
                         session.add(new_judgment)
                         await session.flush()  # new_judgment.id 확보

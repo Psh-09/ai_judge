@@ -14,8 +14,12 @@ class Role(str, Enum):
 class LLMProvider(ABC):
     """역할과 이미 조립된 요청을 받아 JSON 응답(dict)을 반환하는 얇은 어댑터.
 
-    요청 조립, 스키마 검증, 재시도, 토큰/prompt_version 기록은 이 어댑터 밖(워커)의 책임이다.
+    요청 조립, 스키마 검증, 재시도, 토큰 기록은 이 어댑터 밖(워커)의 책임이다.
+    prompt_version만 예외 — 어떤 프롬프트/구현체 버전이 호출됐는지는 provider 자신이
+    가장 잘 알므로, 워커는 이 값을 그대로 cases.prompt_version에 기록하기만 한다.
     """
+
+    prompt_version: str = "v1"
 
     @abstractmethod
     async def generate(self, role: Role, request: dict) -> dict: ...
@@ -26,6 +30,8 @@ class FixtureNotFoundError(Exception):
 
 
 class FixtureLLMProvider(LLMProvider):
+    prompt_version = "fixture-v1"
+
     def __init__(self, fixtures: dict[str, dict[str, dict]] | None = None):
         self._fixtures = fixtures if fixtures is not None else FIXTURES
 
@@ -41,6 +47,8 @@ class FixtureLLMProvider(LLMProvider):
 
 
 class RealLLMProvider(LLMProvider):
+    prompt_version = "real-v1"
+
     async def generate(self, role: Role, request: dict) -> dict:
         raise NotImplementedError("실제 LLM provider는 아직 구현되지 않았습니다.")
 

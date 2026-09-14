@@ -308,3 +308,4 @@ def test_rejudgment_request_includes_the_actual_rebuttal_text(client):
 
     assert len(provider.recorded_requests) == 1
     assert provider.recorded_requests[0]["rebuttal"] == rebuttal
+    assert "precedents" in provider.recorded_requests[0]  # 판례 조회 결과(비어있어도 키는 실림)
