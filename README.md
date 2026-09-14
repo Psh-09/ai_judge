@@ -129,5 +129,5 @@ curl -b cookies.txt http://127.0.0.1:8000/api/v1/cases/<case_id>
 ```bash
 cd server
 source .venv/bin/activate
-pytest        # 148 passed
+pytest        # 158 passed
 ```
