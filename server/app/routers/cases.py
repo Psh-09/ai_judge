@@ -1,11 +1,12 @@
 import uuid
 
+import httpx
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
 from app.db import get_session
-from app.dependencies import get_current_user_id
+from app.dependencies import get_current_user_id, get_github_client
 from app.errors import ApiError
 from app.models import Case
 from app.schemas.case import (
@@ -37,9 +38,16 @@ async def create_case(
     body: CreateCaseRequest,
     session: AsyncSession = Depends(get_session),
     user_id: uuid.UUID = Depends(get_current_user_id),
+    github_client: httpx.AsyncClient = Depends(get_github_client),
 ):
     status_code, result = await submit_case(
-        session, user_id=user_id, code=body.code, language=body.language, force_retrial=body.force_retrial
+        session,
+        user_id=user_id,
+        code=body.code,
+        language=body.language,
+        repo_url=body.repo_url,
+        force_retrial=body.force_retrial,
+        github_client=github_client,
     )
     payload = CaseSubmissionResult(**result)
     return JSONResponse(

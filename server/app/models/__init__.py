@@ -3,6 +3,7 @@ from app.models.base import Base
 from app.models.case import Case
 from app.models.charge import Charge
 from app.models.enums import CaseStatus, FailedStage, FailureReason, PleaValue, VerdictValue
+from app.models.github_fetch_attempt import GitHubFetchAttempt
 from app.models.judgment import Judgment
 from app.models.plea import Plea
 from app.models.sentence import Sentence
@@ -19,6 +20,7 @@ __all__ = [
     "Verdict",
     "Sentence",
     "Appeal",
+    "GitHubFetchAttempt",
     "CaseStatus",
     "FailedStage",
     "FailureReason",

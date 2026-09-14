@@ -8,10 +8,11 @@ from app.schemas.rule import Effort, Severity
 
 
 class CreateCaseRequest(BaseModel):
-    """붙여넣기 모드만 지원한다. GitHub 링크 모드는 다음 단계에서 추가된다."""
+    """code+language(붙여넣기) 또는 repo_url(GitHub 링크) 중 정확히 하나. 검증은 서비스 계층에서 한다."""
 
-    code: str
-    language: str
+    code: str | None = None
+    language: str | None = None
+    repo_url: str | None = None
     force_retrial: bool = False
 
 

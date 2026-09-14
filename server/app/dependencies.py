@@ -1,5 +1,7 @@
 import uuid
+from collections.abc import AsyncGenerator
 
+import httpx
 from fastapi import Request
 
 from app.errors import ApiError
@@ -16,3 +18,8 @@ async def get_current_user_id(request: Request) -> uuid.UUID:
         return decode_token(token, expected_type="access")
     except TokenError as exc:
         raise ApiError(401, "UNAUTHORIZED", "로그인이 필요합니다.") from exc
+
+
+async def get_github_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+    async with httpx.AsyncClient() as client:
+        yield client
