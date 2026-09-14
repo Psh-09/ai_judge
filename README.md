@@ -43,29 +43,91 @@
 - DB: PostgreSQL
 - 큐: 별도 브로커 없이 PostgreSQL 폴링(스테이지 단위 워커) — 자세한 근거는 `docs/plans/plan.md` §3 참고
 
+## 구현 현황
+
+백엔드(FastAPI + PostgreSQL)만 구현되어 있습니다. 프론트엔드(Next.js)는 아직 코드가 없습니다.
+
+| 영역                 | 상태   | 비고                                                                                        |
+| -------------------- | ------ | ------------------------------------------------------------------------------------------- |
+| 법전 로더            | 구현됨 | `rules.yaml` 부팅 시 검증(중복/필수필드/enum), 조회 헬퍼                                    |
+| 검증 파이프라인      | 구현됨 | 코드 정규화·해시, 검사/변호/판사 출력 서버 검증(순수 함수)                                  |
+| 인증                 | 구현됨 | 회원가입/로그인/토큰 재발급, JWT httpOnly 쿠키, CSRF 커스텀 헤더                            |
+| 사건 제출/조회       | 구현됨 | 캐시 히트/진행중 판정, 소유자 검증(404), 24시간 슬라이딩 윈도우 한도                        |
+| 워커                 | 구현됨 | DB 폴링(FOR UPDATE SKIP LOCKED), 하트비트, 재시도 상한, 재심 스테이지                       |
+| 형량 체크리스트 토글 | 구현됨 | `PATCH /sentences/{id}`, 사건 상태와 무관하게 토글                                          |
+| 전과 기록            | 구현됨 | `GET /cases` 목록, `GET /cases/rule-frequency` 반복 조항 랭킹                               |
+| 항소·재심            | 구현됨 | 항소 접수, 재심(판사만 재실행), 판례 뒤집힘(`is_overturned`) 처리                           |
+| GitHub 링크 제출     | 미구현 | `docs/plans/develop_plan.md` M4 예정. 현재는 붙여넣기 모드만 지원                           |
+| 실제 LLM provider    | 미구현 | fixture 모드만 동작(`app/fixtures/data.py`). `RealLLMProvider`는 `NotImplementedError` 스텁 |
+| 프론트엔드           | 미구현 | Next.js 클라이언트 코드 없음. UI는 `docs/design.md`와 `docs/mockups/`의 목업까지만 존재     |
+
 ## 로컬 실행 방법
 
-> 이 저장소는 현재 설계 문서·API 스펙·법전·목업 단계이며, 애플리케이션 코드는 아직 없습니다. 아래는 `docs/plans/develop_plan.md`의 M1 완료 후 예정된 실행 방법입니다.
+Python 3.11+, Docker(로컬 PostgreSQL용)가 필요합니다.
 
 ```bash
-# 서버
-cd server
-cp .env.example .env   # LLM API 키, DB 접속 정보, JWT 서명 키 채우기
+# 1. 저장소 클론 후 server/ 로 이동
+git clone https://github.com/Psh-09/ai_judge.git
+cd ai_judge/server
+
+# 2. 가상환경 + 의존성
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+
+# 3. 환경변수 (기본값이 아래 4번 docker 명령과 그대로 맞음 — 수정 없이 써도 됨)
+cp .env.example .env
+
+# 4. 로컬 PostgreSQL (docker)
+docker run -d --name codecourt-pg \
+  -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_DB=codecourt \
+  -p 5432:5432 postgres:16-alpine
+
+# 5. 스키마 마이그레이션
 alembic upgrade head
+
+# 6. API 서버
 uvicorn app.main:app --reload
 
-# 워커 (별도 프로세스)
-python -m app.worker
-
-# 클라이언트
-cd client
-npm install
-npm run dev
+# 7. 워커 (별도 터미널, 같은 venv)
+source .venv/bin/activate
+python -m app.worker_main
 ```
 
-## 배포 모드
+`http://127.0.0.1:8000/health` 가 `{"status":"ok"}`를 반환하면 서버가 정상 기동한 것입니다. 법전(`rules.yaml`)은 저장소 루트에 있고, 서버가 `server/app/config.py`의 경로 계산을 통해 자동으로 찾으므로 별도 설정이 필요 없습니다.
 
-배포 환경은 **fixture 모드**로 운영됩니다. LLM API 비용을 아직 확보하지 못한 상태이며, 이 모드에서도 상태머신·큐/워커 처리·서버 측 스키마/라인/법전 검증·판례 조회·항소/재심 흐름은 모두 실제로 동작합니다. 대체되는 것은 LLM 호출 지점 하나뿐이고, 실제 키가 확보되면 설정 변경만으로 전환됩니다(`docs/plans/plan.md` §12).
+### fixture 모드로 데모 돌려보기
 
-데모 계정: `TODO`
+`LLM_PROVIDER=fixture`(기본값)에서는 실제 LLM을 호출하지 않고, 미리 등록된 **딱 한 개의 샘플 코드**에 대해서만 저장된 판결을 돌려줍니다. 등록된 코드는 `server/app/fixtures/sample_user_handler.py`(187줄)이며, 이 파일 내용을 그대로 `POST /cases`에 제출해야 검사→변호→판사 3단계가 실제 판결로 이어집니다. 그 외의 임의 코드를 제출하면 검사 단계에서 "fixture 미등록" 사유로 3회 재시도 후 `FAILED`로 종결됩니다(의도된 동작입니다 — 실제 오류가 아닙니다).
+
+간단한 확인 절차:
+
+```bash
+# 회원가입 + 로그인 (쿠키 저장)
+curl -c cookies.txt -X POST http://127.0.0.1:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" -d '{"email":"demo@example.com","password":"password123"}'
+curl -b cookies.txt -c cookies.txt -X POST http://127.0.0.1:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" -d '{"email":"demo@example.com","password":"password123"}'
+
+# 샘플 코드 제출 (server/ 디렉터리에서 실행)
+python3 -c "
+import json
+from app.fixtures.data import SAMPLE_CODE, SAMPLE_LANGUAGE
+print(json.dumps({'code': SAMPLE_CODE, 'language': SAMPLE_LANGUAGE}))
+" > /tmp/payload.json
+curl -b cookies.txt -X POST http://127.0.0.1:8000/api/v1/cases \
+  -H "Content-Type: application/json" -H "X-CSRF-Protection: 1" --data @/tmp/payload.json
+# 응답의 case_id로 폴링 (워커가 몇 초 안에 SENTENCED까지 처리한다)
+curl -b cookies.txt http://127.0.0.1:8000/api/v1/cases/<case_id>/progress
+curl -b cookies.txt http://127.0.0.1:8000/api/v1/cases/<case_id>
+```
+
+이 모드에서도 상태머신·큐/워커 처리·서버 측 스키마/라인/법전 검증·항소/재심 흐름은 모두 실제로 동작한다(§12, §13). 대체되는 것은 LLM 호출 지점 하나뿐이고, 실제 키가 확보되면 설정 변경만으로 전환된다(`docs/plans/plan.md` §12 참고).
+
+### 테스트 실행
+
+```bash
+cd server
+source .venv/bin/activate
+pytest        # 148 passed
+```
