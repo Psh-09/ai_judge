@@ -1,0 +1,11 @@
+.git
+.gitignore
+docs
+README.md
+pencil-new.pen
+
+server/.venv
+server/.env
+server/**/__pycache__
+server/**/*.pyc
+server/.pytest_cache

@@ -1,0 +1,65 @@
+# Render Blueprint. 아직 실제로 배포하지 않았다 — 파일만 준비된 상태이며, 실제 연결 전에
+# Render 최신 문서와 대조해 필드를 확인할 것 (특히 preDeployCommand 지원 여부는 플랜에 따라 다르다).
+#
+# web/worker 둘 다 같은 Dockerfile/이미지를 쓰고 dockerCommand로 역할만 나눈다
+# (plan.md §13: "FastAPI 앱과 워커를 같은 코드베이스에서 별도 프로세스로 기동").
+# 마이그레이션은 두 서비스 모두 시작 전에 `alembic upgrade head`를 먼저 돌려 보장한다
+# (alembic 리비전은 멱등적이라 두 번 실행돼도 안전 — 어느 쪽이 먼저 떠도 문제없다).
+# Render가 preDeployCommand를 지원하는 플랜이라면 그쪽으로 옮기는 게 더 깔끔하다.
+#
+# dockerCommand의 마지막 실행 프로세스 앞에는 반드시 exec를 붙인다: 안 붙이면 sh(PID 1)가
+# SIGTERM을 자식으로 넘기지 않아 배포 재시작/스케일다운 시 그레이스풀 셧다운 없이
+# 타임아웃 후 강제 종료된다 (docker build -f server/Dockerfile 로컬 검증에서 실측: exec 없이
+# exit 137, exec 붙이면 0.5초 만에 exit 0).
+
+services:
+  - type: web
+    name: codecourt-api
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: .
+    dockerCommand: >-
+      sh -c "alembic upgrade head &&
+      exec uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: codecourt-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: LLM_PROVIDER
+        value: fixture
+      - key: ENVIRONMENT
+        value: production
+      - key: RUN_WORKER_IN_APP
+        value: "false"
+      - key: CORS_ALLOWED_ORIGINS
+        value: ""
+
+  - type: worker
+    name: codecourt-worker
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: .
+    dockerCommand: sh -c "alembic upgrade head && exec python -m app.worker_main"
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: codecourt-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: LLM_PROVIDER
+        value: fixture
+      - key: ENVIRONMENT
+        value: production
+
+databases:
+  - name: codecourt-db
+    plan: free
+    databaseName: codecourt
+    user: codecourt
