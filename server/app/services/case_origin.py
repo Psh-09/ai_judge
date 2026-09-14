@@ -10,15 +10,19 @@ def origin_dict(case: Case) -> dict:
     }
 
 
+def _owner_repo(repo_url: str) -> str:
+    return "/".join(repo_url.rstrip("/").split("/")[-2:])
+
+
 def origin_label(case: Case) -> str:
+    """캐시 히트 안내 등에 쓰는 표기. "owner/repo@sha · path" 또는 "붙여넣기로 제출됨"."""
     if case.repo_url:
-        # GitHub 링크 제출은 다음 단계 기능이라 현재는 이 분기에 도달하는 case가 없다.
-        return f"{case.repo_url}@{case.commit_sha} · {case.file_path}"
+        return f"{_owner_repo(case.repo_url)}@{case.commit_sha} · {case.file_path}"
     return "붙여넣기로 제출됨"
 
 
 def origin_label_short(case: Case) -> str:
     """CaseSummary(GET /cases 목록)용 축약 표기. "owner/repo" 또는 "직접 제출"."""
     if case.repo_url:
-        return "/".join(case.repo_url.rstrip("/").split("/")[-2:])
+        return _owner_repo(case.repo_url)
     return "직접 제출"
