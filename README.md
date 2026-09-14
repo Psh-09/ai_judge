@@ -47,19 +47,20 @@
 
 백엔드(FastAPI + PostgreSQL)만 구현되어 있습니다. 프론트엔드(Next.js)는 아직 코드가 없습니다.
 
-| 영역                 | 상태   | 비고                                                                                        |
-| -------------------- | ------ | ------------------------------------------------------------------------------------------- |
-| 법전 로더            | 구현됨 | `rules.yaml` 부팅 시 검증(중복/필수필드/enum), 조회 헬퍼                                    |
-| 검증 파이프라인      | 구현됨 | 코드 정규화·해시, 검사/변호/판사 출력 서버 검증(순수 함수)                                  |
-| 인증                 | 구현됨 | 회원가입/로그인/토큰 재발급, JWT httpOnly 쿠키, CSRF 커스텀 헤더                            |
-| 사건 제출/조회       | 구현됨 | 캐시 히트/진행중 판정, 소유자 검증(404), 24시간 슬라이딩 윈도우 한도                        |
-| 워커                 | 구현됨 | DB 폴링(FOR UPDATE SKIP LOCKED), 하트비트, 재시도 상한, 재심 스테이지                       |
-| 형량 체크리스트 토글 | 구현됨 | `PATCH /sentences/{id}`, 사건 상태와 무관하게 토글                                          |
-| 전과 기록            | 구현됨 | `GET /cases` 목록, `GET /cases/rule-frequency` 반복 조항 랭킹                               |
-| 항소·재심            | 구현됨 | 항소 접수, 재심(판사만 재실행), 판례 뒤집힘(`is_overturned`) 처리                           |
-| GitHub 링크 제출     | 미구현 | `docs/plans/develop_plan.md` M4 예정. 현재는 붙여넣기 모드만 지원                           |
-| 실제 LLM provider    | 미구현 | fixture 모드만 동작(`app/fixtures/data.py`). `RealLLMProvider`는 `NotImplementedError` 스텁 |
-| 프론트엔드           | 미구현 | Next.js 클라이언트 코드 없음. UI는 `docs/design.md`와 `docs/mockups/`의 목업까지만 존재     |
+| 영역                 | 상태   | 비고                                                                                          |
+| -------------------- | ------ | --------------------------------------------------------------------------------------------- |
+| 법전 로더            | 구현됨 | `rules.yaml` 부팅 시 검증(중복/필수필드/enum), 조회 헬퍼                                      |
+| 검증 파이프라인      | 구현됨 | 코드 정규화·해시, 검사/변호/판사 출력 서버 검증(순수 함수)                                    |
+| 인증                 | 구현됨 | 회원가입/로그인/토큰 재발급, JWT httpOnly 쿠키, CSRF 커스텀 헤더                              |
+| 사건 제출/조회       | 구현됨 | 캐시 히트/진행중 판정, 소유자 검증(404), 24시간 슬라이딩 윈도우 한도                          |
+| 워커                 | 구현됨 | DB 폴링(FOR UPDATE SKIP LOCKED), 하트비트, 재시도 상한, 재심 스테이지                         |
+| 형량 체크리스트 토글 | 구현됨 | `PATCH /sentences/{id}`, 사건 상태와 무관하게 토글                                            |
+| 전과 기록            | 구현됨 | `GET /cases` 목록, `GET /cases/rule-frequency` 반복 조항 랭킹                                 |
+| 항소·재심            | 구현됨 | 항소 접수, 재심(판사만 재실행), 판례 뒤집힘(`is_overturned`) 처리                             |
+| 판례 조회·주입       | 구현됨 | `(rule_id, language)` 조회, 판사/재심 프롬프트에 주입, `judgments.precedent_verdict_ids` 기록 |
+| GitHub 링크 제출     | 미구현 | `docs/plans/develop_plan.md` M4 예정. 현재는 붙여넣기 모드만 지원                             |
+| 실제 LLM provider    | 미구현 | fixture 모드만 동작(`app/fixtures/data.py`). `RealLLMProvider`는 `NotImplementedError` 스텁   |
+| 프론트엔드           | 미구현 | Next.js 클라이언트 코드 없음. UI는 `docs/design.md`와 `docs/mockups/`의 목업까지만 존재       |
 
 ## 로컬 실행 방법
 

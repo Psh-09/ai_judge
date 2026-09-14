@@ -4,18 +4,22 @@
 
 ## 엔드포인트 한눈에 보기
 
-| Method | Path                        | 설명                                  |
-| ------ | --------------------------- | ------------------------------------- |
-| POST   | `/auth/register`            | 회원가입                              |
-| POST   | `/auth/login`               | 로그인, httpOnly 쿠키 발급            |
-| POST   | `/auth/refresh`             | 액세스 토큰 재발급                    |
-| GET    | `/rules`                    | 활성 법전 조항 목록                   |
-| POST   | `/cases`                    | 사건 제출(붙여넣기 또는 GitHub 링크)  |
-| GET    | `/cases`                    | 본인 사건 목록(전과 기록)             |
-| GET    | `/cases/{case_id}`          | 사건 상세(기소장·변론·판결·항소 전체) |
-| GET    | `/cases/{case_id}/progress` | 진행 상태 폴링용 경량 응답            |
-| POST   | `/cases/{case_id}/appeal`   | 항소 접수(1회 한정)                   |
-| PATCH  | `/sentences/{sentence_id}`  | 형량 체크리스트 항목 완료 토글        |
+| Method | Path                        | 설명                                       |
+| ------ | --------------------------- | ------------------------------------------ |
+| GET    | `/health`                   | 헬스체크(인증 불필요)                      |
+| POST   | `/auth/register`            | 회원가입                                   |
+| POST   | `/auth/login`               | 로그인, httpOnly 쿠키 발급                 |
+| POST   | `/auth/refresh`             | 액세스 토큰 재발급                         |
+| GET    | `/rules`                    | 활성 법전 조항 목록                        |
+| POST   | `/cases`                    | 사건 제출¹                                 |
+| GET    | `/cases`                    | 본인 사건 목록(전과 기록)                  |
+| GET    | `/cases/rule-frequency`     | 반복 조항 랭킹(자주 걸린 rule_id 상위 5개) |
+| GET    | `/cases/{case_id}`          | 사건 상세(기소장·변론·판결·항소 전체)      |
+| GET    | `/cases/{case_id}/progress` | 진행 상태 폴링용 경량 응답                 |
+| POST   | `/cases/{case_id}/appeal`   | 항소 접수(1회 한정)                        |
+| PATCH  | `/sentences/{sentence_id}`  | 형량 체크리스트 항목 완료 토글             |
+
+¹ 현재 붙여넣기 모드만 구현됨. GitHub 링크 제출은 `docs/plans/develop_plan.md` M4 예정.
 
 ## 사건 라이프사이클 흐름
 
@@ -30,7 +34,7 @@
 
 - 모든 보호된 엔드포인트는 `access_token` 쿠키(httpOnly + Secure + SameSite=Lax)로 인증한다. 토큰을 응답 본문에 담아 반환하지 않는다.
 - 로그인/재발급은 `Set-Cookie` 응답 헤더로 토큰을 내려준다.
-- 상태 변경 요청(POST/PATCH)은 CSRF 대응이 함께 적용된다(커스텀 헤더 검증 또는 Double Submit Cookie).
+- 상태 변경 요청(POST/PATCH/DELETE)은 커스텀 헤더 `X-CSRF-Protection: 1`을 함께 실어야 한다. 예외는 `/auth/register`, `/auth/login`(쿠키로 인증하는 요청이 아니라 위조할 기존 세션이 없음). Double Submit Cookie 대신 이 방식을 택한 근거는 `docs/plans/plan.md` §3(CSRF 대응 행) 참고.
 - 남의 `case_id`/`sentence_id`를 조회하면 403이 아니라 404를 반환한다 — 리소스 존재 여부 자체를 노출하지 않기 위함이다.
 
 ## 에러 응답 표준 형태
