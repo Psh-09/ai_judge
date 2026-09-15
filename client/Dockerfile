@@ -28,6 +28,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# standalone server.js는 HOSTNAME이 없으면 루프백에만 바인딩될 수 있어 컨테이너
+# 밖에서 요청이 닿지 않는다(Render 502의 원인) — 반드시 0.0.0.0으로 명시한다.
+ENV HOSTNAME="0.0.0.0"
+# 기본값. Render 등 플랫폼이 PORT를 주입하면 그 값이 우선한다(-e PORT=... 로 덮어씀).
 ENV PORT=3000
 EXPOSE 3000
 
