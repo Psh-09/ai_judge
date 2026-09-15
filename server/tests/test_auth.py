@@ -49,6 +49,27 @@ def test_login_success_sets_cookies_and_body_has_no_tokens(client):
         assert "samesite=lax" in header.lower()
 
 
+def test_login_in_production_sets_samesite_none(client, monkeypatch):
+    # 프론트(codecourt-client)와 백엔드(codecourt-api)가 서로 다른 Render 도메인이라
+    # SameSite=Lax로는 크로스 사이트 요청에 쿠키가 실리지 않는다 — 운영에서만 None으로
+    # 완화한다(항상 Secure와 함께, CSRF는 커스텀 헤더가 별도로 방어).
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "environment", "production")
+    client.post(
+        "/api/v1/auth/register", json={"email": "prod-samesite@example.com", "password": "password123"}
+    )
+    response = client.post(
+        "/api/v1/auth/login", json={"email": "prod-samesite@example.com", "password": "password123"}
+    )
+    assert response.status_code == 200
+    set_cookie_headers = response.headers.get_list("set-cookie")
+    assert len(set_cookie_headers) == 2
+    for header in set_cookie_headers:
+        assert "samesite=none" in header.lower()
+        assert "Secure" in header
+
+
 def test_login_does_not_require_csrf_header(client):
     client.post(
         "/api/v1/auth/register", json={"email": "login2@example.com", "password": "password123"}

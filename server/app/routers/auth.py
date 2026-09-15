@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.db import get_session
 from app.errors import ApiError
 from app.models import User
@@ -21,6 +22,14 @@ from app.services.auth import (
 router = APIRouter(tags=["auth"])
 
 
+def _cookie_samesite() -> str:
+    # 운영에서는 프론트/백엔드가 서로 다른 도메인(Render 서비스 두 개)이라 SameSite=Lax면
+    # 크로스 사이트 요청에 쿠키가 실리지 않는다. None은 Secure 없이는 브라우저가 거부하므로
+    # secure=True와 항상 함께 쓴다 — CSRF 방어는 커스텀 헤더(X-CSRF-Protection)가 맡고
+    # 있어(plan.md 참고) SameSite 완화가 CSRF 보호를 약화시키지 않는다.
+    return "none" if get_settings().environment == "production" else "lax"
+
+
 def _set_access_cookie(response: Response, token: str) -> None:
     response.set_cookie(
         key="access_token",
@@ -28,7 +37,7 @@ def _set_access_cookie(response: Response, token: str) -> None:
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         httponly=True,
         secure=True,
-        samesite="lax",
+        samesite=_cookie_samesite(),
         path="/",
     )
 
@@ -40,7 +49,7 @@ def _set_refresh_cookie(response: Response, token: str) -> None:
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         httponly=True,
         secure=True,
-        samesite="lax",
+        samesite=_cookie_samesite(),
         path="/",
     )
 
