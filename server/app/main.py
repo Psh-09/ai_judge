@@ -49,15 +49,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Code Court API", lifespan=lifespan)
 
-if settings.cors_allowed_origin_list:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_allowed_origin_list,
-        allow_credentials=True,  # 쿠키 기반 인증이라 필요
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
 
 @app.exception_handler(ApiError)
 async def handle_api_error(request, exc: ApiError) -> JSONResponse:
@@ -82,6 +73,22 @@ async def csrf_protection(request: Request, call_next):
                 },
             )
     return await call_next(request)
+
+
+# Starlette의 add_middleware()는 항상 리스트 맨 앞에 꽂혀서(insert(0, ...)) 가장 나중에
+# 등록한 미들웨어가 가장 바깥쪽(제일 먼저 실행)이 된다. CORS는 반드시 CSRF보다 나중에
+# 등록해야 한다 — 그래야 CSRF 미들웨어가 자체적으로 403을 반환해 짧게 끊어도(call_next를
+# 타지 않아도) 그 응답이 CORS 바깥 레이어를 거쳐 나가면서 Access-Control-Allow-Origin이
+# 붙는다. 순서가 바뀌면(CORS를 먼저 등록하면) CSRF가 CORS보다 바깥이 되어, CSRF가 반환한
+# 403 응답에는 CORS 헤더가 전혀 붙지 않고 브라우저는 그냥 "CORS 에러"로 표시한다.
+if settings.cors_allowed_origin_list:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_allowed_origin_list,
+        allow_credentials=True,  # 쿠키 기반 인증이라 필요
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 app.include_router(health.router)

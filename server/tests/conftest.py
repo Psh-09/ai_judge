@@ -1,4 +1,9 @@
 import asyncio
+import os
+
+# app.main이 모듈 임포트 시점에 settings를 한 번 읽어 CORSMiddleware 등록 여부를 정하므로,
+# CORS 관련 테스트가 가능하려면 app.main을 임포트하기 전에 값을 심어둬야 한다.
+os.environ.setdefault("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
 
 import pytest
 from fastapi.testclient import TestClient
