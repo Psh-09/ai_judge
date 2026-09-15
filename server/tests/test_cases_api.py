@@ -171,6 +171,7 @@ def test_full_flow_submit_poll_and_read_sentenced_judgment(client):
     assert len(body["judgment"]["sentences"]) == 3
     assert body["charges"][0]["rule_id"] == "SEC-003"
     assert body["charges"][0]["rule_title"] == "SQL 문자열 결합"
+    assert body["code"] == SAMPLE_CODE
 
 
 def test_cache_hit_after_dismissed_case(client):

@@ -143,6 +143,7 @@ async def build_case_detail(session: AsyncSession, catalog: RuleCatalog, case: C
     return {
         "case_id": case.id,
         "language": case.language,
+        "code": case.code,
         "status": case.status,
         "revision": case.revision,
         "appeal_used": case.appeal_used,

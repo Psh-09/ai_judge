@@ -101,6 +101,7 @@ class Appeal(BaseModel):
 class CaseDetail(BaseModel):
     case_id: uuid.UUID
     language: str
+    code: str
     status: CaseStatus
     revision: int
     appeal_used: bool
