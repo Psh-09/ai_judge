@@ -221,12 +221,32 @@ function FailedView({
   return (
     <div className="mt-6 space-y-4">
       <Banner kind="error">
-        심사에 실패했습니다 ({detail.failed_stage ?? "알 수 없는 단계"} ·{" "}
-        {detail.failure_reason ?? "원인 미상"}). 완료된 단계까지는 확인할 수
-        있습니다.
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span>
+            심사에 실패했습니다 ({detail.failed_stage ?? "알 수 없는 단계"} ·{" "}
+            {detail.failure_reason ?? "원인 미상"}). 완료된 단계까지는 확인할 수
+            있습니다.
+          </span>
+          <span className="flex shrink-0 gap-2">
+            {detail.charges.length > 0 && (
+              <a
+                href="#failed-charges"
+                className="rounded border border-danger/40 px-3 py-1.5 text-xs font-semibold text-danger hover:bg-danger/10"
+              >
+                기소장 보기
+              </a>
+            )}
+            <a
+              href="/submit"
+              className="rounded border border-accent bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/20"
+            >
+              다시 제출
+            </a>
+          </span>
+        </div>
       </Banner>
       {detail.charges.length > 0 && (
-        <div>
+        <div id="failed-charges">
           <h2 className="mb-2 text-sm font-semibold text-text">
             기소장 (완료된 단계까지)
           </h2>
@@ -252,12 +272,6 @@ function FailedView({
         }))}
         highlight={highlight}
       />
-      <a
-        href="/submit"
-        className="inline-block text-sm font-semibold text-accent hover:underline"
-      >
-        다시 제출하기 →
-      </a>
     </div>
   );
 }
