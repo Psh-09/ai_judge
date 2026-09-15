@@ -54,6 +54,15 @@ def _set_refresh_cookie(response: Response, token: str) -> None:
     )
 
 
+def _clear_auth_cookies(response: Response) -> None:
+    # httpOnly 쿠키라 JS로는 지울 수 없다 — 로그아웃은 반드시 서버가 만료시켜야 한다.
+    # 설정 당시와 동일한 path/secure/samesite를 줘야 브라우저가 같은 쿠키로 인식해 지운다.
+    for key in ("access_token", "refresh_token"):
+        response.delete_cookie(
+            key=key, path="/", secure=True, httponly=True, samesite=_cookie_samesite()
+        )
+
+
 @router.post("/auth/register", operation_id="registerUser", status_code=201, response_model=UserSummary)
 async def register_user(body: RegisterRequest, session: AsyncSession = Depends(get_session)):
     user = User(email=body.email, password_hash=hash_password(body.password))
@@ -88,4 +97,10 @@ async def refresh_token(request: Request, response: Response):
         raise ApiError(401, "UNAUTHORIZED", "로그인이 필요합니다.") from exc
 
     _set_access_cookie(response, create_access_token(user_id))
+    return {"ok": True}
+
+
+@router.post("/auth/logout", operation_id="logoutUser")
+async def logout_user(response: Response):
+    _clear_auth_cookies(response)
     return {"ok": True}

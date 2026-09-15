@@ -153,6 +153,36 @@ paths:
         "403":
           $ref: "#/components/responses/CsrfCheckFailed"
 
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: 로그아웃 (인증 쿠키 만료)
+      operationId: logoutUser
+      description: >
+        access_token/refresh_token 쿠키를 즉시 만료시킨다. httpOnly 쿠키라 클라이언트
+        JS로는 지울 수 없으므로 반드시 이 엔드포인트를 통해야 한다. 쿠키가 이미
+        없거나 만료된 상태로 호출해도 200을 반환한다(멱등).
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      responses:
+        "200":
+          description: 로그아웃 처리됨, Set-Cookie로 두 쿠키 모두 만료
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+        "403":
+          $ref: "#/components/responses/CsrfCheckFailed"
+
   /rules:
     get:
       tags: [rules]

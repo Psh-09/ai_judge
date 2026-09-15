@@ -143,3 +143,39 @@ def test_access_token_cookie_alone_cannot_refresh(client):
     client.cookies.delete("refresh_token")
     response = client.post("/api/v1/auth/refresh", headers=CSRF_HEADERS)
     assert response.status_code == 401
+
+
+def test_logout_clears_cookies_and_blocks_further_access(client):
+    client.post(
+        "/api/v1/auth/register", json={"email": "logout@example.com", "password": "password123"}
+    )
+    client.post("/api/v1/auth/login", json={"email": "logout@example.com", "password": "password123"})
+
+    response = client.post("/api/v1/auth/logout", headers=CSRF_HEADERS)
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    set_cookie_headers = response.headers.get_list("set-cookie")
+    assert len(set_cookie_headers) == 2
+    for header in set_cookie_headers:
+        # 삭제 쿠키는 Max-Age=0(또는 과거 Expires)으로 내려온다 — TestClient의 쿠키 jar도
+        # 이를 실제 브라우저처럼 반영해 이후 요청에서 쿠키를 보내지 않는다.
+        assert "Max-Age=0" in header
+
+    protected = client.get("/api/v1/cases")
+    assert protected.status_code == 401
+
+
+def test_logout_without_csrf_header_returns_403(client):
+    client.post(
+        "/api/v1/auth/register", json={"email": "logout2@example.com", "password": "password123"}
+    )
+    client.post("/api/v1/auth/login", json={"email": "logout2@example.com", "password": "password123"})
+    response = client.post("/api/v1/auth/logout")
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "CSRF_CHECK_FAILED"
+
+
+def test_logout_is_idempotent_without_existing_session(client):
+    response = client.post("/api/v1/auth/logout", headers=CSRF_HEADERS)
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}

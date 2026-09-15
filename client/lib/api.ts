@@ -1,9 +1,11 @@
 import type {
   CaseDetail,
+  CaseListResponse,
   CaseProgress,
   CaseSubmissionResult,
   ErrorCode,
   Rule,
+  RuleFrequencyResponse,
   UserSummary,
 } from "./types";
 
@@ -89,6 +91,10 @@ export function login(email: string, password: string): Promise<UserSummary> {
   });
 }
 
+export function logout(): Promise<{ ok: boolean }> {
+  return request("/auth/logout", { method: "POST" });
+}
+
 export function listRules(): Promise<Rule[]> {
   return request("/rules");
 }
@@ -99,6 +105,14 @@ export function createCase(
     | { repo_url: string; force_retrial?: boolean },
 ): Promise<CaseSubmissionResult> {
   return request("/cases", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function listCases(page = 1, perPage = 20): Promise<CaseListResponse> {
+  return request(`/cases?page=${page}&per_page=${perPage}`);
+}
+
+export function getRuleFrequency(): Promise<RuleFrequencyResponse> {
+  return request("/cases/rule-frequency");
 }
 
 export function getCase(caseId: string): Promise<CaseDetail> {

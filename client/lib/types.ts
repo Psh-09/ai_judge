@@ -161,3 +161,20 @@ export interface CaseSummary {
   sentence_progress: { done: number; total: number };
   created_at: string;
 }
+
+export interface CaseListResponse {
+  items: CaseSummary[];
+  page: number;
+  per_page: number;
+  total: number;
+}
+
+export interface RuleFrequencyItem {
+  rule_id: string;
+  rule_title: string;
+  count: number;
+}
+
+export interface RuleFrequencyResponse {
+  items: RuleFrequencyItem[];
+}
