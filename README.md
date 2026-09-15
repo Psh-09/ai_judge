@@ -79,7 +79,28 @@
 
 ## 로컬 실행 방법
 
-Python 3.11+, Docker(로컬 PostgreSQL용)가 필요합니다.
+Docker와 Docker Compose만 있으면 됩니다.
+
+```bash
+git clone https://github.com/Psh-09/ai_judge.git
+cd ai_judge
+docker compose up --build
+```
+
+postgres(볼륨으로 데이터 유지) → api(기동 전 `alembic upgrade head` 자동 실행) → worker(같은 이미지, `python -m app.worker_main`) → client 순서로 뜹니다. api는 postgres의 헬스체크가 통과한 뒤에, worker는 api의 헬스체크(마이그레이션이 이미 끝난 상태)가 통과한 뒤에 시작됩니다 — api와 worker가 동시에 `alembic upgrade head`를 돌리면 `alembic_version` 테이블 생성 경합으로 한쪽이 죽는 문제가 실제로 있어 이렇게 순서를 강제합니다.
+
+기동 완료 후:
+
+- 프론트엔드: http://localhost:3000
+- API: http://localhost:8000 (`/health`가 `{"status":"ok"}`)
+
+`CORS_ALLOWED_ORIGINS=http://localhost:3000`, `ENVIRONMENT=development`(운영 전용 `JWT_SECRET` 가드에 걸리지 않음), `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1`이 `docker-compose.yml`에 기본값으로 들어 있어 별도 설정 없이 바로 회원가입 → 코드 제출까지 됩니다. DB를 초기화하려면 `docker compose down -v`.
+
+### 수동 실행
+
+Docker Compose 없이, 각 구성 요소를 직접 띄우고 싶을 때의 방법입니다.
+
+Python 3.11+, Node 20+, Docker(로컬 PostgreSQL용)가 필요합니다.
 
 ```bash
 # 1. 저장소 클론 후 server/ 로 이동
@@ -108,6 +129,12 @@ uvicorn app.main:app --reload
 # 7. 워커 (별도 터미널, 같은 venv)
 source .venv/bin/activate
 python -m app.worker_main
+
+# 8. 프론트엔드 (별도 터미널)
+cd ../client
+cp .env.example .env.local        # NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1 로 수정
+npm install
+npm run dev
 ```
 
 `http://127.0.0.1:8000/health` 가 `{"status":"ok"}`를 반환하면 서버가 정상 기동한 것입니다. 법전(`rules.yaml`)은 저장소 루트에 있고, 서버가 `server/app/config.py`의 경로 계산을 통해 자동으로 찾으므로 별도 설정이 필요 없습니다.
