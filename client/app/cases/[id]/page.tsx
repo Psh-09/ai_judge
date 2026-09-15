@@ -298,165 +298,189 @@ function JudgmentView({
   for (const v of judgment.verdicts) counts[v.verdict]++;
 
   const doneCount = judgment.sentences.filter((s) => s.completed_at).length;
+  const statusBanner = judgmentStatusBanner(detail);
 
   return (
-    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <div className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-        {detail.origin.type === "github" && (
-          <div className="rounded border border-border bg-surface p-3 text-xs">
-            <p className="font-mono text-text-muted">
-              {detail.origin.repo_url?.replace("https://github.com/", "")} ·{" "}
-              <span className="text-accent">{detail.origin.commit_sha}</span> ·{" "}
-              {detail.origin.file_path}
-            </p>
-            <a
-              href={detail.origin.repo_url ?? "#"}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-1 inline-block text-accent hover:underline"
-            >
-              GitHub에서 보기 ↗
-            </a>
-          </div>
-        )}
-        <CodeBlock
-          code={detail.code}
-          markers={detail.charges.map((c) => ({
-            start: c.evidence_start,
-            end: c.evidence_end,
-          }))}
-          highlight={highlight}
-        />
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-text-muted">
-            기소 {detail.charges.length}건
-          </span>
-          <span className="flex gap-4 font-mono">
-            <span className="text-text">
-              {counts.SUSTAINED} <span className="text-text-faint">채택</span>
-            </span>
-            <span className="text-text">
-              {counts.REDUCED} <span className="text-text-faint">감형</span>
-            </span>
-            <span className="text-text">
-              {counts.DISMISSED} <span className="text-text-faint">기각</span>
-            </span>
-          </span>
+    <div className="mt-6 space-y-4">
+      {statusBanner && (
+        <Banner kind={statusBanner.kind}>{statusBanner.text}</Banner>
+      )}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+          {detail.origin.type === "github" && (
+            <div className="rounded border border-border bg-surface p-3 text-xs">
+              <p className="font-mono text-text-muted">
+                {detail.origin.repo_url?.replace("https://github.com/", "")} ·{" "}
+                <span className="text-accent">{detail.origin.commit_sha}</span>{" "}
+                · {detail.origin.file_path}
+              </p>
+              <a
+                href={detail.origin.repo_url ?? "#"}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-block text-accent hover:underline"
+              >
+                GitHub에서 보기 ↗
+              </a>
+            </div>
+          )}
+          <CodeBlock
+            code={detail.code}
+            markers={detail.charges.map((c) => ({
+              start: c.evidence_start,
+              end: c.evidence_end,
+            }))}
+            highlight={highlight}
+          />
         </div>
 
-        <blockquote className="border-l-2 border-accent bg-surface p-4 text-sm leading-[1.7] text-text">
-          <p className="mb-1 text-xs font-semibold text-text-faint">
-            판사 총평
-          </p>
-          {judgment.opinion}
-        </blockquote>
-
-        {judgment.precedent_verdict_ids.length > 0 && (
-          <p className="text-xs text-text-faint">
-            유사 판례 {judgment.precedent_verdict_ids.length}건 참고
-          </p>
-        )}
-
-        <div className="space-y-3">
-          {detail.charges.map((charge) => (
-            <ChargeCard
-              key={charge.charge_index}
-              charge={charge}
-              plea={detail.pleas.find(
-                (p) => p.charge_index === charge.charge_index,
-              )}
-              verdict={judgment.verdicts.find(
-                (v) => v.charge_index === charge.charge_index,
-              )}
-              onEvidenceClick={onEvidenceClick}
-            />
-          ))}
-        </div>
-
-        {judgment.sentences.length > 0 && (
-          <div className="rounded border border-border bg-surface p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-text">
-                형량 {judgment.sentences.length}건
-              </h2>
-              <span className="font-mono text-xs text-text-muted">
-                {doneCount} / {judgment.sentences.length} 완료
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-text-muted">
+              기소 {detail.charges.length}건
+            </span>
+            <span className="flex gap-4 font-mono">
+              <span className="text-text">
+                {counts.SUSTAINED} <span className="text-text-faint">채택</span>
               </span>
-            </div>
-            <div className="mb-3 h-1.5 overflow-hidden rounded bg-surface-raised">
-              <div
-                className="h-full bg-complete transition-all"
-                style={{
-                  width: `${judgment.sentences.length ? (doneCount / judgment.sentences.length) * 100 : 0}%`,
-                }}
-              />
-            </div>
-            <ul className="space-y-2">
-              {judgment.sentences.map((sentence) => (
-                <li
-                  key={sentence.sentence_id}
-                  className="flex items-start gap-3 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={!!sentence.completed_at}
-                    onChange={(e) =>
-                      onToggleSentence(sentence.sentence_id, e.target.checked)
-                    }
-                    className="mt-1 h-4 w-4 accent-[color:var(--color-complete)]"
-                  />
-                  <div className="flex-1">
-                    <p
-                      className={
-                        sentence.completed_at
-                          ? "text-text-faint line-through"
-                          : "text-text"
-                      }
-                    >
-                      {sentence.task}
-                      {sentence.advisory && (
-                        <span className="ml-2 rounded border border-border px-1 py-0.5 text-[10px] text-text-faint">
-                          권고
-                        </span>
-                      )}
-                    </p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onEvidenceClick(
-                            sentence.target_start,
-                            sentence.target_end,
-                          )
-                        }
-                        className="font-mono text-xs text-accent hover:underline"
-                      >
-                        {sentence.target_start === sentence.target_end
-                          ? `L${sentence.target_start}`
-                          : `L${sentence.target_start}–L${sentence.target_end}`}
-                      </button>
-                      <EffortBadge effort={sentence.effort} />
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+              <span className="text-text">
+                {counts.REDUCED} <span className="text-text-faint">감형</span>
+              </span>
+              <span className="text-text">
+                {counts.DISMISSED} <span className="text-text-faint">기각</span>
+              </span>
+            </span>
           </div>
-        )}
 
-        {!detail.appeal_used && (
-          <button
-            type="button"
-            onClick={onAppeal}
-            className="w-full rounded border border-accent bg-accent/10 py-3 text-sm font-semibold text-accent hover:bg-accent/20"
-          >
-            항소하기
-          </button>
-        )}
+          <blockquote className="border-l-2 border-accent bg-surface p-4 text-sm leading-[1.7] text-text">
+            <p className="mb-1 text-xs font-semibold text-text-faint">
+              판사 총평
+            </p>
+            {judgment.opinion}
+          </blockquote>
+
+          {judgment.precedent_verdict_ids.length > 0 && (
+            <p className="text-xs text-text-faint">
+              유사 판례 {judgment.precedent_verdict_ids.length}건 참고
+            </p>
+          )}
+
+          <div className="space-y-3">
+            {detail.charges.map((charge) => (
+              <ChargeCard
+                key={charge.charge_index}
+                charge={charge}
+                plea={detail.pleas.find(
+                  (p) => p.charge_index === charge.charge_index,
+                )}
+                verdict={judgment.verdicts.find(
+                  (v) => v.charge_index === charge.charge_index,
+                )}
+                onEvidenceClick={onEvidenceClick}
+              />
+            ))}
+          </div>
+
+          {judgment.sentences.length > 0 && (
+            <div className="rounded border border-border bg-surface p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-text">
+                  형량 {judgment.sentences.length}건
+                </h2>
+                <span className="font-mono text-xs text-text-muted">
+                  {doneCount} / {judgment.sentences.length} 완료
+                </span>
+              </div>
+              <div className="mb-3 h-1.5 overflow-hidden rounded bg-surface-raised">
+                <div
+                  className="h-full bg-complete transition-all"
+                  style={{
+                    width: `${judgment.sentences.length ? (doneCount / judgment.sentences.length) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+              <ul className="space-y-2">
+                {judgment.sentences.map((sentence) => (
+                  <li
+                    key={sentence.sentence_id}
+                    className="flex items-start gap-3 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!sentence.completed_at}
+                      onChange={(e) =>
+                        onToggleSentence(sentence.sentence_id, e.target.checked)
+                      }
+                      className="mt-1 h-4 w-4 accent-[color:var(--color-complete)]"
+                    />
+                    <div className="flex-1">
+                      <p
+                        className={
+                          sentence.completed_at
+                            ? "text-text-faint line-through"
+                            : "text-text"
+                        }
+                      >
+                        {sentence.task}
+                        {sentence.advisory && (
+                          <span className="ml-2 rounded border border-border px-1 py-0.5 text-[10px] text-text-faint">
+                            권고
+                          </span>
+                        )}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onEvidenceClick(
+                              sentence.target_start,
+                              sentence.target_end,
+                            )
+                          }
+                          className="font-mono text-xs text-accent hover:underline"
+                        >
+                          {sentence.target_start === sentence.target_end
+                            ? `L${sentence.target_start}`
+                            : `L${sentence.target_start}–L${sentence.target_end}`}
+                        </button>
+                        <EffortBadge effort={sentence.effort} />
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {!detail.appeal_used && (
+            <button
+              type="button"
+              onClick={onAppeal}
+              className="w-full rounded border border-accent bg-accent/10 py-3 text-sm font-semibold text-accent hover:bg-accent/20"
+            >
+              항소하기
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
+}
+
+function judgmentStatusBanner(
+  detail: CaseDetail,
+): { text: string; kind: "info" | "warning" } | null {
+  if (detail.revision === 1 && detail.appeal_used) {
+    return { text: "재심 확정 (최종)", kind: "info" };
+  }
+  if (detail.revision === 0 && detail.appeal_used) {
+    return {
+      text: "원심 확정 (재심 실패) — 원심 판결이 유지됩니다.",
+      kind: "warning",
+    };
+  }
+  if (detail.revision === 0 && !detail.appeal_used) {
+    return { text: "판결 확정 (항소 가능)", kind: "info" };
+  }
+  return null;
 }
