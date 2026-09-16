@@ -253,6 +253,7 @@ def test_rejudgment_failure_keeps_original_judgment_and_appeal_used(client):
     assert detail["revision"] == 0  # 원심 유지
     assert detail["appeal_used"] is True  # 재항소 불가
     assert len(detail["judgment"]["verdicts"]) == 5  # 원심 판결이 그대로 유효
+    assert detail["rejudgment_failed_reason"]  # API 응답에도 사유가 노출돼야 화면에 표시 가능
 
     async def check_failure_recorded():
         async with client.session_factory() as session:  # type: ignore[attr-defined]

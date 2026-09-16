@@ -109,6 +109,7 @@ class CaseDetail(BaseModel):
     total_lines: int
     failed_stage: FailedStage | None
     failure_reason: FailureReason | None
+    rejudgment_failed_reason: str | None
     origin: CaseOrigin
     created_at: datetime
     updated_at: datetime

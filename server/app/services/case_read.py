@@ -151,6 +151,7 @@ async def build_case_detail(session: AsyncSession, catalog: RuleCatalog, case: C
         "total_lines": case.total_lines,
         "failed_stage": case.failed_stage,
         "failure_reason": case.failure_reason,
+        "rejudgment_failed_reason": case.rejudgment_failed_reason,
         "origin": origin_dict(case),
         "created_at": case.created_at,
         "updated_at": case.updated_at,

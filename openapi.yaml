@@ -1087,6 +1087,14 @@ components:
         total_lines: { type: integer }
         failed_stage: { $ref: "#/components/schemas/FailedStage" }
         failure_reason: { $ref: "#/components/schemas/FailureReason" }
+        rejudgment_failed_reason:
+          type: string
+          nullable: true
+          description: >-
+            재심(REJUDGING)이 재시도 상한까지 실패했을 때만 값이 있다. 이 경우
+            status는 FAILED가 아니라 원심 그대로 SENTENCED로 유지되고
+            revision/판결 내용도 원심 그대로다(plan.md §4) — 이 필드만 재심
+            시도가 있었고 실패했음을 알린다.
         origin: { $ref: "#/components/schemas/CaseOrigin" }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }

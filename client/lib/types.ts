@@ -135,6 +135,7 @@ export interface CaseDetail {
   total_lines: number;
   failed_stage: FailedStage;
   failure_reason: FailureReason;
+  rejudgment_failed_reason: string | null;
   origin: CaseOrigin;
   created_at: string;
   updated_at: string;

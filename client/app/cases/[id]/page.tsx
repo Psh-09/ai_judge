@@ -488,8 +488,11 @@ function judgmentStatusBanner(
     return { text: "재심 확정 (최종)", kind: "info" };
   }
   if (detail.revision === 0 && detail.appeal_used) {
+    const reason = detail.rejudgment_failed_reason;
     return {
-      text: "원심 확정 (재심 실패) — 원심 판결이 유지됩니다.",
+      text: reason
+        ? `원심 확정 (재심 실패) — 원심 판결이 유지됩니다. 사유: ${reason}`
+        : "원심 확정 (재심 실패) — 원심 판결이 유지됩니다.",
       kind: "warning",
     };
   }
