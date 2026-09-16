@@ -6,6 +6,13 @@ import { login, register } from "@/lib/api";
 import { describeError } from "@/lib/errorMessages";
 import { Banner } from "@/components/Banner";
 
+// 배포 환경은 fixture 모드라 실제 LLM 없이 준비된 샘플 코드로만 판결이 나온다 —
+// 심사·평가자가 가입 없이 바로 둘러볼 수 있도록 데모 계정을 안내한다(design.md 5.1).
+// 데모 모드가 아니면(NEXT_PUBLIC_DEMO_MODE=false) 더 이상 유효하지 않을 수 있으니 숨긴다.
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
+const DEMO_EMAIL = "demo@example.com";
+const DEMO_PASSWORD = "CodeCourtDemo2026!";
+
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -111,6 +118,25 @@ export default function LoginPage() {
                 : "가입하고 시작하기"}
           </button>
         </form>
+
+        {DEMO_MODE && (
+          <button
+            type="button"
+            onClick={() => {
+              setMode("login");
+              setEmail(DEMO_EMAIL);
+              setPassword(DEMO_PASSWORD);
+            }}
+            className="mt-6 w-full rounded border border-border bg-surface p-3 text-left text-xs text-text-muted hover:border-accent"
+          >
+            <span className="font-semibold text-text">
+              데모 계정으로 둘러보기
+            </span>
+            <br />
+            <span className="font-mono">{DEMO_EMAIL}</span> /{" "}
+            <span className="font-mono">{DEMO_PASSWORD}</span>
+          </button>
+        )}
       </div>
     </div>
   );
