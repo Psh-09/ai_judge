@@ -10,6 +10,7 @@
 | POST   | `/auth/register`            | 회원가입                                   |
 | POST   | `/auth/login`               | 로그인, httpOnly 쿠키 발급                 |
 | POST   | `/auth/refresh`             | 액세스 토큰 재발급                         |
+| POST   | `/auth/logout`              | 로그아웃(인증 쿠키 만료, 멱등)             |
 | GET    | `/rules`                    | 활성 법전 조항 목록                        |
 | POST   | `/cases`                    | 사건 제출¹                                 |
 | GET    | `/cases`                    | 본인 사건 목록(전과 기록)                  |
